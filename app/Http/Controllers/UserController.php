@@ -17,7 +17,6 @@ class UserController extends Controller
      */
     public function index()
     {
-        // dd(Auth::user()->roles[0]['id']);
         if(auth()){
             $user_id = auth()->user()->id;
         }
