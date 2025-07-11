@@ -22,6 +22,7 @@ class UserTableSeeder extends Seeder
             // 'id'    => '1',
             'name'              => 'Administrator',
             'email'             => 'admin@test.com',
+            'user_name'         => 'DEVEL',
             'password'          => md5('password'),
             'customer_id'       => '1',
             'customer_branch'   => '1',

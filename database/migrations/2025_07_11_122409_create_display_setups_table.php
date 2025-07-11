@@ -11,8 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('username',16)->unique()->nullable();
+        Schema::create('display_setups', function (Blueprint $table) {
+            $table->id();
+            $table->integer('customer_id');
+            $table->integer('branch_id');
+            $table->integer('column_count');
+            $table->integer('edited_by');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('display_setups');
     }
 };

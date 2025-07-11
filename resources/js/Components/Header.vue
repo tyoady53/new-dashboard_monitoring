@@ -24,6 +24,10 @@
                 <i class="fa fa-plus"></i>
                 Customer/Branch
             </Link>
+            <Link v-if="hasAnyPermission(['display_charts.index'])" href="/permission" class="dropdown-item" role="button">
+                <i class="fas fa-chart-line"></i>
+                Display Setup
+            </Link>
             <Link href="#" data-bs-toggle="modal" data-bs-target="#intervalModal" class="dropdown-item" role="button" v-if="routeName == '/home'">
                 <i class="fa fa-clock"></i> Refresh Interval
             </Link>
@@ -37,7 +41,7 @@
                 </svg>
                 Roles
             </Link>
-            <Link v-if="permissions.includes('permissions.index')" href="/permission" class="dropdown-item" role="button">
+            <Link v-if="hasAnyPermission(['permissions.index'])" href="/permission" class="dropdown-item" role="button">
                 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor">
                     <title/><g data-name="24-Spreading" id="_24-Spreading"><circle cx="32" cy="21" r="4" style="fill:none;stroke:#000;stroke-linejoin:round;stroke-width:2px"/>
                         <path d="M32,27a5,5,0,0,0-5,5v5a2,2,0,0,0,2,2v6a2,2,0,0,0,2,2h2a2,2,0,0,0,2-2V39a2,2,0,0,0,2-2V32A5,5,0,0,0,32,27Z" style="fill:none;stroke:#000;stroke-linejoin:round;stroke-width:2px"/>

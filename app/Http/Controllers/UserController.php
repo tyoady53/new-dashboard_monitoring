@@ -70,29 +70,22 @@ class UserController extends Controller
         $this->validate($request, [
             'name'      =>  'required',
             'email'     =>  'required|unique:users',
-            'username'  =>  'required|unique:users',
+            'user_name' =>  'required|unique:users',
             'password'  =>  'required|confirmed',
             'branch'    =>  'required',
             'company'   =>  'required'
         ]);
 
-        $id = 1;
-        $user = User::latest()->first();
-        if($user) {
-            $id = $user->id + 1;
-        }
-
-        // dd($request,$id);
-
-        $user = User::create([
-            // 'id'            => $id,
+        $insert_arr = [
             'name'          => strtoupper($request->name),
             'email'         => $request->email,
             'password'      => md5($request->password),
-            'username'      => $request->username,
+            'user_name'     => $request->user_name,
             'customer_id'   => $request->company,
             'customer_branch' => $request->branch,
-        ]);
+        ];
+
+        $user = User::create($insert_arr);
 
         $user->assignRole($request->roles);
 

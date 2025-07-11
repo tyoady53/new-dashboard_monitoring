@@ -166,12 +166,11 @@
             });
 
             const submit = () => {
-
                 Inertia.post('/user', {
                     name: form.name,
                     email: form.email,
                     password: form.password,
-                    username: form.username,
+                    user_name: form.username,
                     company: form.company,
                     branch: form.branch,
                     roles: form.roles,

@@ -4,6 +4,8 @@ import { createInertiaApp } from '@inertiajs/inertia-vue3'
 
 import { InertiaProgress } from '@inertiajs/progress'
 
+import VueApexCharts from 'vue3-apexcharts';
+
 createInertiaApp({
 
   resolve: name => require(`./Pages/${name}`),
@@ -30,6 +32,7 @@ createInertiaApp({
         },
       })
       .use(plugin)
+      .use(VueApexCharts)
       .mount(el)
   },
 });
