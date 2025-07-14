@@ -1,10 +1,10 @@
 <template>
     <LoadingComponent v-if="isLoading" class="col-12 text-center" />
     <div v-else>
-        <h5 class="text-lg font-semibold mb-2 text-center">{{ title }}</h5>
+        <h5 class="text-lg font-semibold mb-2  text-center">{{ title }}</h5>
         <div class="card shadow-sm p-4 chart">
           <apexchart
-            type="line"
+            type="bar"
             height="300"
             :options="chartOptions"
             :series="datas"
@@ -23,7 +23,7 @@ const props = defineProps({
   series: Array,
   categories: Array,
   auth: Object,
-  link: String,
+  link: String
 });
 
 const isLoading = ref(false);
@@ -31,7 +31,6 @@ const timeCount = ref(0);
 const title = ref({});
 const labels = ref([]);
 const datas = ref([]);
-const total = ref(0);
 
 onMounted(() => {
     get_monitoring_data();
@@ -51,8 +50,6 @@ const get_monitoring_data = () => {
         title.value = data.title;
         labels.value = data.labels;
         datas.value = data.data;
-        total.value = data.total;
-        console.log('Labels:', typeof data.labels, data.labels);
 
       isLoading.value = false;
     })
@@ -69,26 +66,38 @@ const get_monitoring_data = () => {
 
 const chartOptions = computed(() => ({
   chart: {
-    type: 'line',
-    zoom: {
-      enabled: false
+    type: 'bar',
+    stacked: false,
+  },
+  plotOptions: {
+    bar: {
+      horizontal: true,
+      barHeight: '90%', // optional, better for horizontal layout
     }
   },
   dataLabels: {
-    enabled: true
-  },
-  stroke: {
-    curve: 'smooth'
+    enabled: true,
+    offsetX: 20, // ✅ slight spacing from the bar end
+    style: {
+      fontSize: '12px',
+      colors: ['#000']
+    },
+    dropShadow: {
+        enabled: true,
+        top: 0,
+        left: 0,
+        blur: 2,
+        color: '#fff',     // outline color
+        opacity: 3
+    }
   },
   xaxis: {
-    categories: labels.value
-  },
-  colors: ['#10b981'], // tailwind green
-  markers: {
-    size: 4
+    categories: labels.value, // ✅ move categories to y-axis
   },
   legend: {
-    position: 'top'
-  }
+    position: 'top',
+  },
+  colors: ['#f39c12', '#3498db']
 }));
 </script>
+

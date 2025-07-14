@@ -1,23 +1,68 @@
 <template>
-  <div class="card shadow-sm p-4">
-    <h5 class="text-lg font-semibold mb-2">{{ title }}</h5>
-    <apexchart
-      type="bar"
-      height="300"
-      :options="chartOptions"
-      :series="series"
-    />
-  </div>
+    <LoadingComponent v-if="isLoading" class="col-12 text-center" />
+    <div v-else>
+        <h5 class="text-lg font-semibold mb-2  text-center">{{ title }}</h5>
+        <div class="card shadow-sm p-4 chart">
+          <apexchart
+            type="bar"
+            height="300"
+            :options="chartOptions"
+            :series="datas"
+          />
+        </div>
+    </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { onMounted, ref, computed, reactive, onBeforeUnmount } from 'vue';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+import LoadingComponent from './LoadingComponent.vue';
 
 const props = defineProps({
-  title: String,
   series: Array,
   categories: Array,
+  auth: Object,
+  link: String
 });
+
+const isLoading = ref(false);
+const timeCount = ref(0);
+const title = ref({});
+const labels = ref([]);
+const datas = ref([]);
+
+onMounted(() => {
+    get_monitoring_data();
+});
+
+const get_monitoring_data = () => {
+  isLoading.value = true;
+  timeCount.value = 0;
+  axios.get(`/api/dashboard/${props.link}/`,{
+    params: {
+        cust_id: props.auth.customer_id,
+        cust_branch: props.auth.customer_branch
+    }
+  })
+    .then(res => {
+        const data = res.data;
+        title.value = data.title;
+        labels.value = data.labels;
+        datas.value = data.data;
+
+      isLoading.value = false;
+    })
+    .catch(() => {
+      isLoading.value = false;
+      Swal.fire({
+        icon: 'error',
+        title: 'Fetch Failed',
+        text: 'Unable to get data.',
+        timer: 2000
+      });
+    });
+};
 
 const chartOptions = computed(() => ({
   chart: {
@@ -31,10 +76,23 @@ const chartOptions = computed(() => ({
     }
   },
   dataLabels: {
-    enabled: true
+    enabled: true,
+    offset: 20, // ✅ slight spacing from the bar end
+    style: {
+      fontSize: '11px',
+      colors: ['#000']
+    },
+    dropShadow: {
+        enabled: true,
+        top: 0,
+        left: 0,
+        blur: 2,
+        color: '#fff',     // outline color
+        opacity: 3
+    }
   },
   xaxis: {
-    categories: props.categories,
+    categories: labels.value,
   },
   legend: {
     position: 'top',

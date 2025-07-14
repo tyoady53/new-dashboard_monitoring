@@ -29,26 +29,28 @@
               <div class="dashboard grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
                 <div class="row">
                     <div class="col-4">
-                        <ChartBarGroup title="STATISTIK TEST GROUP" :series="testGroupSeries" :categories="testGroupCategories" />
+                        <!-- <ChartBarGroupHorizontal title="STATISTIK TEST GROUP" :series="testGroupSeries" :categories="testGroupCategories" /> -->
+                        <ChartBarGroupHorizontal :auth="$page.props.auth.user" link="get_stat_test_group"/>
                     </div>
                     <div class="col-4">
-                        <ChartDonut title="STATISTIK NILAI KRITIS" :labels="['BELUM LAPOR', 'SUDAH LAPOR']" :series="[41, 267]" total="308" />
+                        <ChartDonut :auth="$page.props.auth.user" link="get_stat_nilai_kritis" />
                     </div>
                     <div class="col-4">
-                        <ChartDonut title="STATISTIK ASAL PASIEN" :labels="['RAWAT JALAN', 'IGD', 'RAWAT INAP']" :series="[175, 108, 41]" total="363" />
+                        <ChartDonut :auth="$page.props.auth.user" link="get_stat_asal_pasien" />
                     </div>
                     <div class="col-4">
-                        <ChartLine title="STATISTIK KUNJUNGAN PERJAM" :series="visitHourlySeries" :categories="visitHourlyCategories" />
+                        <ChartLine :auth="$page.props.auth.user" link="get_kunj_perjam" />
                     </div>
                     <div class="col-4">
-                        <PatientTable title="PASIEN NILAI KRITIS" :patients="criticalPatients" />
+                        <PatientTable :auth="$page.props.auth.user" link="get_nilai_ktitis"/>
                     </div>
                     <div class="col-4">
-                        <ChartBarGroup title="MONITORING TAT" :series="tatSeries" :categories="['RUTIN', 'CITO']" />
+                        <ChartBarGroup :auth="$page.props.auth.user" link="get_monitoring_tat" />
                     </div>
                 </div>
 
-                <div class="row">
+                <StatBox :auth="$page.props.auth.user"/>
+                <!-- <div class="row">
                     <div class="col-2">
                         <StatBox label="KUNJUNGAN" value="363" />
                     </div>
@@ -67,7 +69,7 @@
                     <div class="col-2">
                         <StatBox label="TOTAL PEMERIKSAAN" value="9,479" class="col-span-5 text-lg font-bold" />
                     </div>
-                </div>
+                </div> -->
               </div>
             </template>
           </div>
@@ -89,6 +91,7 @@ import ChartDonut from '../../../Components/ChartDonut.vue';
 import ChartLine from '../../../Components/ChartLine.vue';
 import PatientTable from '../../../Components/PatientTable.vue';
 import StatBox from '../../../Components/StatBox.vue';
+import ChartBarGroupHorizontal from '../../../Components/ChartBarGroupHorizontal.vue';
 
 export default {
   layout: LayoutApp,
@@ -100,6 +103,7 @@ export default {
     ChartLine,
     PatientTable,
     StatBox,
+    ChartBarGroupHorizontal
   },
 
   props: {
@@ -155,32 +159,9 @@ export default {
     //   get_monitoring_data();
     });
 
-    const testGroupCategories = ['URINALISIS', 'KIMIA KLINIK', 'IMUNOLOGI', 'HEMATOLOGI', 'HDT', 'FAECES', 'FAAL KOAGULASI', 'DRUG MONITORING/NAPZA', 'CAIRAN TUBUH', 'BIOLOGI MOLEKULER / LITBANG', 'ANALISA GAS DARAH'];
-    const testGroupSeries = [
-      { name: 'BELUM SELESAI', data: [7, 19, 19, 87, 1, 22, 1, 1, 1, 3, 8] },
-      { name: 'SELESAI', data: [21, 60, 60, 148, 8, 37, 0, 0, 0, 2, 0] }
-    ];
-
     const tatSeries = [
       { name: 'BELUM SELESAI', data: [203, 72] },
       { name: 'SELESAI', data: [47, 41] }
-    ];
-
-    const visitHourlyCategories = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09'];
-    const visitHourlySeries = [
-      { name: 'Total Pasien', data: [16, 18, 6, 9, 8, 3, 39, 79, 106, 79] }
-    ];
-
-    const criticalPatients = [
-      { lab_no: '2502040721', patient_name: 'HENDRA WIDJAJA', test_name: 'Hemoglobin (Hema)' },
-      { lab_no: '2502040004', patient_name: 'FAJAR HAFIDZ RAMADAN', test_name: 'PO2 (Analisa Gas Darah)' },
-      { lab_no: '2502040500', patient_name: 'KASANAH', test_name: 'Hemoglobin (Hema)' },
-      { lab_no: '2502040398', patient_name: 'ZAIRA EKA ADIYANTI', test_name: 'Hemoglobin (Hema)' },
-      { lab_no: '2502040649', patient_name: 'WIWIK SITI SUNDARI', test_name: 'Trombosit (Hema)' },
-      { lab_no: '2502040079', patient_name: 'EKA YUNI LISTYARINI', test_name: 'Kalium (K)' },
-      { lab_no: '2502040046', patient_name: 'BUKASAN BUNGKO', test_name: 'BUN' },
-      { lab_no: '2502040084', patient_name: 'SENEN', test_name: 'Klorida (Cl)' },
-      { lab_no: '2502040702', patient_name: 'MUHAMMAD IQBAL AZZAHIR', test_name: 'Kalium (K)' }
     ];
 
     return {
@@ -189,12 +170,7 @@ export default {
       time,
       isLoading,
       formatCompat,
-      testGroupCategories,
-      testGroupSeries,
       tatSeries,
-      visitHourlyCategories,
-      visitHourlySeries,
-      criticalPatients,
     };
   },
 };

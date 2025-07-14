@@ -36,4 +36,7 @@
   </script>
 
   <style>
+  .chart {
+    height: 330px;
+  }
   </style>

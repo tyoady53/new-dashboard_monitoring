@@ -2,8 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
+use App\Models\CustomerBranch;
 use App\Models\Dashboard;
 use App\Models\DashMonitoringTat;
+use App\Models\DashNilaiKritis;
+use App\Models\DashTat;
+use App\Models\DashTestGroup;
+use App\Models\DashTotalKritis;
+use App\Models\DashVisitation;
+use App\Models\DashVisitClasification;
+use App\Models\DashVisitHour;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -330,6 +339,185 @@ class MonitoringController extends Controller
         // \Log::info("Connection closed. Background task is running.");
 
         return;
+    }
+
+    // New Dashboard
+    public function get_stat_test_group(Request $request) {
+        $cust = Customer::where('id', $request->cust_id)->first();
+        $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+        $labels = DashTestGroup::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->distinct()->pluck('test_group')->toArray();
+        $arr_selesai = DashTestGroup::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->pluck('total')->toArray();
+        $arr_belum_selesai = DashTestGroup::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->pluck('total_not_finish')->toArray();
+        $return_array = array();
+
+        $return_data = [
+            [
+                'name' => 'BELUM SELESAI',
+                'data' => $arr_belum_selesai
+            ],
+            [
+                'name' => 'SELESAI',
+                'data' => $arr_selesai
+            ]
+        ];
+
+        $return_array['labels'] = $labels;
+        $return_array['data'] = $return_data;
+        $return_array['title'] = 'PASIEN NILAI KRITIS';
+
+        return $return_array;
+    }
+
+    public function get_stat_nilai_kritis(Request $request) {
+        $cust = Customer::where('id', $request->cust_id)->first();
+        $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+        $datas = DashTotalKritis::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('type', 'ASC')->get();
+        // dd($datas);
+        $return_array = array();
+
+        $total = 0;
+        foreach($datas as $data) {
+            // $return_array['data'] = [$data->lab_no];
+            $return_array['data'][] = $data->total;
+            $total += $data->total;
+        }
+
+        $return_array['labels'] = ['BELUM LAPOR', 'SUDAH LAPOR'];
+        $return_array['total'] = $total;
+        $return_array['title'] = 'STATISTIK NILAI KRITIS';
+
+        return $return_array;
+    }
+
+    public function get_stat_asal_pasien(Request $request) {
+        $cust = Customer::where('id', $request->cust_id)->first();
+        $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+        $datas = DashVisitClasification::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('patient_type','DESC')->get();
+        $labels = DashVisitClasification::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->distinct()->orderBy('patient_type','DESC')->pluck('patient_type')->toArray();
+        $return_array = array();
+
+        $total = 0;
+        foreach($datas as $data) {
+            // $return_array['data'] = [$data->lab_no];
+            $return_array['data'][] = $data->total;
+            $total += $data->total;
+        }
+
+        $return_array['labels'] = $labels;
+        $return_array['total'] = $total;
+        $return_array['title'] = 'STATISTIK ASAL PASIEN';
+
+        return $return_array;
+    }
+
+    public function get_kunj_perjam(Request $request) {
+        $cust = Customer::where('id', $request->cust_id)->first();
+        $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+        $labels = DashVisitHour::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('hours','ASC')->pluck('hours')->toArray();
+        $datas = DashVisitHour::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('hours','ASC')->pluck('total')->toArray();
+        $return_array = array();
+
+        $return_data = [
+            [
+                'name' => 'Total Pasien',
+                'data' => $datas
+            ]
+        ];
+
+        $return_array['data'] = $return_data;
+        $return_array['labels'] = $labels;
+        $return_array['title'] = 'STATISTIK KUNJUNGAN PERJAM';
+
+        return $return_array;
+
+    }
+    public function get_monitoring_tat(Request $request) {
+        $cust = Customer::where('id', $request->cust_id)->first();
+        $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+        $labels = DashTat::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->distinct()->orderBy('tat_type', 'DESC')->pluck('tat_type')->toArray();
+        $arr_selesai = DashTat::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('tat_type', 'DESC')->pluck('total')->toArray();
+        $arr_belum_selesai = DashTat::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('tat_type', 'DESC')->pluck('total_not_finish')->toArray();
+        $return_array = array();
+
+        $return_data = [
+            [
+                'name' => 'BELUM SELESAI',
+                'data' => $arr_belum_selesai
+            ],
+            [
+                'name' => 'SELESAI',
+                'data' => $arr_selesai
+            ]
+        ];
+
+        $return_array['labels'] = $labels;
+        $return_array['data'] = $return_data;
+        $return_array['title'] = 'MONITORING TAT';
+
+        return $return_array;
+    }
+
+
+    public function get_nilai_ktitis(Request $request) {
+        $cust = Customer::where('id', $request->cust_id)->first();
+        $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+        $datas = DashNilaiKritis::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->get();
+        $return_array = array();
+        foreach($datas as $data) {
+            $return_array['data'][] = [
+                'lab_no'        => $data->lab_no,
+                'patient_name'  => $data->patient_name,
+                'test_name'     => $data->test_name
+            ];
+        }
+
+        $return_array['title'] = 'PASIEN NILAI KRITIS';
+
+        return $return_array;
+    }
+
+    public function get_statbox(Request $request) {
+        $cust = Customer::where('id', $request->cust_id)->first();
+        $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+        $data = DashVisitation::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->first();
+        $labels = ['KUNJUNGAN', 'SAMPEL BELUM AMBIL', 'SAMPEL TERIMA', 'PEMERIKSAAN BELUM SELESAI', 'PEMERIKSAAN SELESAI', 'TOTAL PEMERIKSAAN'];
+        $return_array = array();
+        foreach($labels as $label) {
+            $total = 0;
+            switch ($label) {
+                case 'KUNJUNGAN':
+                    $total = $data->visitation;
+                    break;
+
+                case 'SAMPEL BELUM AMBIL':
+                    $total = $data->spec_not_draw;
+                    break;
+
+                case 'SAMPEL TERIMA':
+                    $total = $data->spec_received;
+                    break;
+
+                case 'PEMERIKSAAN BELUM SELESAI':
+                    $total = $data->test_not_finish;
+                    break;
+
+                case 'PEMERIKSAAN SELESAI':
+                    $total = $data->test_finish;
+                    break;
+
+                default:
+                    $total = $data->test_not_finish + $data->test_finish;
+                    break;
+            }
+            $return_array['data'][] = [
+                'label' => $label,
+                'value' => $total
+            ];
+        }
+
+        $return_array['labels'] = $labels;
+
+        return $return_array;
     }
 
     public function get_permissions()
