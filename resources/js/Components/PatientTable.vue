@@ -4,7 +4,7 @@
         <h5 class="text-lg font-semibold mb-2 text-center">{{ title }}</h5>
         <div class="card shadow p-3 chart">
           <div style="height: 99%; overflow-y: auto;">
-              <table class="table table-bordered">
+              <table class="table table-bordered table-striped">
                 <thead>
                   <tr>
                     <th>Lab No</th>
@@ -25,6 +25,17 @@
     </div>
 </template>
 
+<style>
+thead {
+  position: sticky;
+  top: 0;
+  background: black;
+  z-index: 5;
+  text-align: center;
+  color: white;
+}
+</style>
+
 <script setup>
 import { onMounted, ref, reactive, onBeforeUnmount } from 'vue';
 import axios from 'axios';
@@ -34,7 +45,8 @@ import LoadingComponent from './LoadingComponent.vue';
 const props = defineProps({
   label: String,
   value: Number,
-  auth: Object,
+  cust: Number,
+  branch: Number,
   link: String,
 });
 
@@ -62,8 +74,8 @@ const get_monitoring_data = () => {
   timeCount.value = 0;
   axios.get(`/api/dashboard/${props.link}/`,{
     params: {
-        cust_id: props.auth.customer_id,
-        cust_branch: props.auth.customer_branch
+        cust_id: props.cust,
+        cust_branch: props.branch
     }
   })
     .then(res => {

@@ -9,7 +9,52 @@
           <h4>Patient Monitoring {{ table_data.cust_branch }}</h4>
         </div>
 
-        <div class="card border-0 rounded-3 shadow-border-top-purple mt-4">
+        <div class="card border-0 rounded-3 shadow-border-top-purple p-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="fw-bold">Customer <span
+                                style="color:red;">*</span></label>
+                        <select v-model="form.customer_id
+                            " class="form-select" @change="getBranch" :disabled="selected_cust != null">
+                            <option disabled value>
+                                Choose One
+                            </option>
+                            <option v-for="customer in master_customers" :key="customer"
+                                :value="customer.id">
+                                {{
+                                    customer.customer_name
+                                }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="fw-bold">Branch <span style="color:red;">*</span></label>
+                        <select v-model="form.branch_id" class="form-select" @change="changeBranch">
+                            <option disabled value>
+                                Choose One
+                            </option>
+                            <option v-for="branch in filteredChain" :key="branch.id"
+                                :value="branch.id">
+                                {{
+                                    branch.branch_name
+                                }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <!-- <div class="col-md-4" v-if="form.customer_id && form.branch_id">
+                    <label class="fw-bold">Search Data</label>
+                    <button button type="submit" class="btn btn-md btn-primary border-0 shadow w-100" @click="changeBranch">
+                        <i class="fa fa-filter"></i> Search
+                    </button>
+                </div> -->
+            </div>
+        </div>
+
+        <div class="card border-0 rounded-3 shadow-border-top-purple mt-4" v-if="form.customer_id && form.branch_id">
           <div class="card-body">
             <div class="text-center">
               Last Update : {{ formatCompat(last_update) }} <br />
@@ -24,32 +69,30 @@
                 <h3>Loading Data</h3>
               </div>
             </template>
-
             <template v-else>
               <div class="dashboard grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
                 <div class="row">
                     <div class="col-4">
-                        <!-- <ChartBarGroupHorizontal title="STATISTIK TEST GROUP" :series="testGroupSeries" :categories="testGroupCategories" /> -->
-                        <ChartBarGroupHorizontal :auth="$page.props.auth.user" link="get_stat_test_group"/>
+                        <ChartBarGroupHorizontal :cust="form.customer_id" :branch="form.branch_id" link="get_stat_test_group"/>
                     </div>
                     <div class="col-4">
-                        <ChartDonut :auth="$page.props.auth.user" link="get_stat_nilai_kritis" />
+                        <ChartDonut :cust="form.customer_id" :branch="form.branch_id" link="get_stat_nilai_kritis" />
                     </div>
                     <div class="col-4">
-                        <ChartDonut :auth="$page.props.auth.user" link="get_stat_asal_pasien" />
+                        <ChartDonut :cust="form.customer_id" :branch="form.branch_id" link="get_stat_asal_pasien" />
                     </div>
                     <div class="col-4">
-                        <ChartLine :auth="$page.props.auth.user" link="get_kunj_perjam" />
+                        <ChartLine :cust="form.customer_id" :branch="form.branch_id" link="get_kunj_perjam" />
                     </div>
                     <div class="col-4">
-                        <PatientTable :auth="$page.props.auth.user" link="get_nilai_ktitis"/>
+                        <PatientTable :cust="form.customer_id" :branch="form.branch_id" link="get_nilai_ktitis"/>
                     </div>
                     <div class="col-4">
-                        <ChartBarGroup :auth="$page.props.auth.user" link="get_monitoring_tat" />
+                        <ChartBarGroup :cust="form.customer_id" :branch="form.branch_id" link="get_monitoring_tat" />
                     </div>
                 </div>
 
-                <StatBox :auth="$page.props.auth.user"/>
+                <StatBox :cust="form.customer_id" :branch="form.branch_id"/>
                 <!-- <div class="row">
                     <div class="col-2">
                         <StatBox label="KUNJUNGAN" value="363" />
@@ -109,6 +152,47 @@ export default {
   props: {
     auth: Object,
     permissions: Array,
+    selected_cust: Number,
+    selected_branch: Number,
+    master_customers: Array,
+    master_customer_branches: Array,
+  },
+
+  computed: {
+    filteredChain() {
+        // this.form.branch_id.html += 'required';
+        let filteredsubChains = [];
+        for (let i = 0; i < this.master_customer_branches.length; i++) {
+            let structures = this.master_customer_branches[i];
+            if (structures.customer_id == this.form.customer_id) {
+                filteredsubChains.push(structures);
+            }
+        }
+        return filteredsubChains;
+    },
+  },
+
+  mounted() {
+    if(this.selected_cust) {
+        this.form.customer_id = this.selected_cust;
+    }
+  },
+
+  methods: {
+    getBranch() {
+        this.form.branch_id = null;
+        if (!this.form.customer_id) {
+            this.form.customer_id = -1;
+        }
+    },
+
+    changeBranch() {
+        const temp =  this.form.branch_id;
+        this.form.branch_id = null;
+        setTimeout(() => {
+            this.form.branch_id = temp;
+        }, 100);
+    },
   },
 
   setup(props) {
@@ -118,6 +202,10 @@ export default {
     const timeCount = ref(0);
     const refreshRate = ref(0);
     const isLoading = ref(false);
+    const form = reactive({
+        customer_id : '',
+        branch_id : ''
+    })
 
     const interval = setInterval(() => {
       checkTime();
@@ -155,22 +243,13 @@ export default {
       }
     };
 
-    onMounted(() => {
-    //   get_monitoring_data();
-    });
-
-    const tatSeries = [
-      { name: 'BELUM SELESAI', data: [203, 72] },
-      { name: 'SELESAI', data: [47, 41] }
-    ];
-
     return {
       table_data,
       last_update,
       time,
       isLoading,
       formatCompat,
-      tatSeries,
+      form,
     };
   },
 };

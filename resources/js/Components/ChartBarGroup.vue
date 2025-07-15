@@ -22,7 +22,8 @@ import LoadingComponent from './LoadingComponent.vue';
 const props = defineProps({
   series: Array,
   categories: Array,
-  auth: Object,
+  cust: Number,
+  branch: Number,
   link: String
 });
 
@@ -41,8 +42,8 @@ const get_monitoring_data = () => {
   timeCount.value = 0;
   axios.get(`/api/dashboard/${props.link}/`,{
     params: {
-        cust_id: props.auth.customer_id,
-        cust_branch: props.auth.customer_branch
+        cust_id: props.cust,
+        cust_branch: props.branch
     }
   })
     .then(res => {
