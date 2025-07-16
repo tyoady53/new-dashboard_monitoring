@@ -193,8 +193,8 @@ export default {
         this.last_update = '';
         axios.get(`/api/dashboard/get_last_update/`,{
             params: {
-                cust_id: this.auth.user.customer_id,
-                cust_branch: this.auth.user.customer_branch
+                cust_id: this.form.customer_id,
+                cust_branch: this.form.branch_id
             }
         })
             .then(res => {
