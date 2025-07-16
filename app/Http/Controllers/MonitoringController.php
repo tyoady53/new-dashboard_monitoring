@@ -13,10 +13,12 @@ use App\Models\DashTotalKritis;
 use App\Models\DashVisitation;
 use App\Models\DashVisitClasification;
 use App\Models\DashVisitHour;
+use App\Models\TableSetting;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class MonitoringController extends Controller
@@ -362,10 +364,77 @@ class MonitoringController extends Controller
         return;
     }
 
-    // New Dashboard
-    public function get_stat_test_group(Request $request) {
+    public function get_last_update(Request $request) {
+        $formatted = null;
+        $tables = TableSetting::get();
         $cust = Customer::where('id', $request->cust_id)->first();
         $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+        foreach($tables as $table) {
+            $dttm[] = DB::table($table->table_name)
+                ->select('dttm')
+                ->where('cust_name',$cust->customer_name)
+                ->where('cust_branch',$branch->branch_name)
+                ->orderBy('dttm', 'desc')
+                ->first();
+        }
+
+        $latest = collect($dttm)->max('dttm');
+
+        if($latest) {
+            $formatted = Carbon::parse($latest)->format('d M Y/H:i');
+        }
+
+        return $formatted;
+    }
+
+    public function get_data_monitoring(Request $request) {
+        $auth = auth()->user();
+        $return_data = [];
+
+        // if($auth->customer_id != (int)$request->cust_id) {
+        //     return $return_data;
+        // }
+
+        $cust = Customer::where('id', $request->cust_id)->first();
+        $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+
+        switch ($request->link) {
+            case 'get_stat_test_group':
+                $return_data = $this->get_stat_test_group($cust,$branch);
+                break;
+
+            case 'get_stat_nilai_kritis':
+                $return_data = $this->get_stat_nilai_kritis($cust,$branch);
+                break;
+
+            case 'get_stat_asal_pasien':
+                $return_data = $this->get_stat_asal_pasien($cust,$branch);
+                break;
+
+            case 'get_kunj_perjam':
+                $return_data = $this->get_kunj_perjam($cust,$branch);
+                break;
+
+            case 'get_nilai_ktitis':
+                $return_data = $this->get_nilai_ktitis($cust,$branch);
+                break;
+
+            case 'get_monitoring_tat':
+                $return_data = $this->get_monitoring_tat($cust,$branch);
+                break;
+
+            default:
+                $return_data = $this->get_statbox($cust,$branch);
+                break;
+        }
+
+        return $return_data;
+    }
+
+    // New Dashboard
+    function get_stat_test_group($cust,$branch) {
+        // $cust = Customer::where('id', $request->cust_id)->first();
+        // $branch = CustomerBranch::where('id', $request->cust_branch)->first();
         $labels = DashTestGroup::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->distinct()->pluck('test_group')->toArray();
         $arr_selesai = DashTestGroup::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->pluck('total')->toArray();
         $arr_belum_selesai = DashTestGroup::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->pluck('total_not_finish')->toArray();
@@ -389,9 +458,9 @@ class MonitoringController extends Controller
         return $return_array;
     }
 
-    public function get_stat_nilai_kritis(Request $request) {
-        $cust = Customer::where('id', $request->cust_id)->first();
-        $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+    function get_stat_nilai_kritis($cust,$branch) {
+        // $cust = Customer::where('id', $request->cust_id)->first();
+        // $branch = CustomerBranch::where('id', $request->cust_branch)->first();
         $datas = DashTotalKritis::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('type', 'ASC')->get();
         // dd($datas);
         $return_array = array();
@@ -410,9 +479,9 @@ class MonitoringController extends Controller
         return $return_array;
     }
 
-    public function get_stat_asal_pasien(Request $request) {
-        $cust = Customer::where('id', $request->cust_id)->first();
-        $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+    function get_stat_asal_pasien($cust,$branch) {
+        // $cust = Customer::where('id', $request->cust_id)->first();
+        // $branch = CustomerBranch::where('id', $request->cust_branch)->first();
         $datas = DashVisitClasification::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('patient_type','DESC')->get();
         $labels = DashVisitClasification::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->distinct()->orderBy('patient_type','DESC')->pluck('patient_type')->toArray();
         $return_array = array();
@@ -431,9 +500,9 @@ class MonitoringController extends Controller
         return $return_array;
     }
 
-    public function get_kunj_perjam(Request $request) {
-        $cust = Customer::where('id', $request->cust_id)->first();
-        $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+    function get_kunj_perjam($cust,$branch) {
+        // $cust = Customer::where('id', $request->cust_id)->first();
+        // $branch = CustomerBranch::where('id', $request->cust_branch)->first();
         $labels = DashVisitHour::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('hours','ASC')->pluck('hours')->toArray();
         $datas = DashVisitHour::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('hours','ASC')->pluck('total')->toArray();
         $return_array = array();
@@ -452,9 +521,10 @@ class MonitoringController extends Controller
         return $return_array;
 
     }
-    public function get_monitoring_tat(Request $request) {
-        $cust = Customer::where('id', $request->cust_id)->first();
-        $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+
+    function get_monitoring_tat($cust,$branch) {
+        // $cust = Customer::where('id', $request->cust_id)->first();
+        // $branch = CustomerBranch::where('id', $request->cust_branch)->first();
         $labels = DashTat::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->distinct()->orderBy('tat_type', 'DESC')->pluck('tat_type')->toArray();
         $arr_selesai = DashTat::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('tat_type', 'DESC')->pluck('total')->toArray();
         $arr_belum_selesai = DashTat::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('tat_type', 'DESC')->pluck('total_not_finish')->toArray();
@@ -478,10 +548,9 @@ class MonitoringController extends Controller
         return $return_array;
     }
 
-
-    public function get_nilai_ktitis(Request $request) {
-        $cust = Customer::where('id', $request->cust_id)->first();
-        $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+    function get_nilai_ktitis($cust,$branch) {
+        // $cust = Customer::where('id', $request->cust_id)->first();
+        // $branch = CustomerBranch::where('id', $request->cust_branch)->first();
         $datas = DashNilaiKritis::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->get();
         $return_array = array();
         foreach($datas as $data) {
@@ -497,9 +566,9 @@ class MonitoringController extends Controller
         return $return_array;
     }
 
-    public function get_statbox(Request $request) {
-        $cust = Customer::where('id', $request->cust_id)->first();
-        $branch = CustomerBranch::where('id', $request->cust_branch)->first();
+    function get_statbox($cust,$branch) {
+        // $cust = Customer::where('id', $request->cust_id)->first();
+        // $branch = CustomerBranch::where('id', $request->cust_branch)->first();
         $data = DashVisitation::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->first();
         $labels = ['KUNJUNGAN', 'SAMPEL BELUM AMBIL', 'SAMPEL TERIMA', 'PEMERIKSAAN BELUM SELESAI', 'PEMERIKSAAN SELESAI', 'TOTAL PEMERIKSAAN'];
         $return_array = array();

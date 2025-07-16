@@ -45,12 +45,6 @@
                         </select>
                     </div>
                 </div>
-                <!-- <div class="col-md-4" v-if="form.customer_id && form.branch_id">
-                    <label class="fw-bold">Search Data</label>
-                    <button button type="submit" class="btn btn-md btn-primary border-0 shadow w-100" @click="changeBranch">
-                        <i class="fa fa-filter"></i> Search
-                    </button>
-                </div> -->
             </div>
         </div>
 
@@ -191,7 +185,31 @@ export default {
         this.form.branch_id = null;
         setTimeout(() => {
             this.form.branch_id = temp;
+            this.get_latest_update();
         }, 100);
+    },
+
+    get_latest_update() {
+        this.last_update = '';
+        axios.get(`/api/dashboard/get_last_update/`,{
+            params: {
+                cust_id: this.auth.user.customer_id,
+                cust_branch: this.auth.user.customer_branch
+            }
+        })
+            .then(res => {
+                const data = res.data;
+                console.log(data)
+                this.last_update = data;
+            })
+            .catch(() => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Fetch Failed',
+                text: 'Unable to get data.',
+                timer: 2000
+            });
+        });
     },
   },
 
@@ -220,21 +238,21 @@ export default {
       return `${d.getDate().toString().padStart(2, '0')}-${d.toLocaleString('default', { month: 'short' })}-${d.getFullYear()}/${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
     };
 
-    const get_monitoring_data = () => {
-      isLoading.value = true;
-      timeCount.value = 0;
+    // const get_monitoring_data = () => {
+    //   isLoading.value = true;
+    //   timeCount.value = 0;
 
-      axios.get(`/api/dashboard/get_data/${props.auth.user.email}`)
-        .then(res => {
-          table_data.value = res.data.data;
-          last_update.value = res.data.data.last_update;
-          isLoading.value = false;
-        })
-        .catch(() => {
-          isLoading.value = false;
-          Swal.fire({ icon: 'error', title: 'Fetch Failed', text: 'Unable to get data.', timer: 2000 });
-        });
-    };
+    //   axios.get(`/api/dashboard/get_data/${props.auth.user.email}`)
+    //     .then(res => {
+    //       table_data.value = res.data.data;
+    //       last_update.value = res.data.data.last_update;
+    //       isLoading.value = false;
+    //     })
+    //     .catch(() => {
+    //       isLoading.value = false;
+    //       Swal.fire({ icon: 'error', title: 'Fetch Failed', text: 'Unable to get data.', timer: 2000 });
+    //     });
+    // };
 
     const checkTime = () => {
       if (refreshRate.value > 0) {

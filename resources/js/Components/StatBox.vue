@@ -47,12 +47,13 @@ const datas = ref({});
 const get_monitoring_data = () => {
   isLoading.value = true;
   timeCount.value = 0;
-  axios.get('/api/dashboard/get_statbox/',{
+  axios.get(`/get_data`,{
     params: {
+        link: props.link,
         cust_id: props.cust,
         cust_branch: props.branch
     }
-  })
+    })
     .then(res => {
         const data = res.data;
         labels.value = data.labels;

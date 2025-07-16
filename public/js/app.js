@@ -22094,8 +22094,10 @@ __webpack_require__.r(__webpack_exports__);
     var get_monitoring_data = function get_monitoring_data() {
       isLoading.value = true;
       timeCount.value = 0;
-      axios__WEBPACK_IMPORTED_MODULE_3__["default"].get("/api/dashboard/".concat(props.link, "/"), {
+      //   axios.get(`/api/dashboard/${props.link}/`,{
+      axios__WEBPACK_IMPORTED_MODULE_3__["default"].get("/get_data", {
         params: {
+          link: props.link,
           cust_id: props.cust,
           cust_branch: props.branch
         }
@@ -22230,8 +22232,10 @@ __webpack_require__.r(__webpack_exports__);
     var get_monitoring_data = function get_monitoring_data() {
       isLoading.value = true;
       timeCount.value = 0;
-      axios__WEBPACK_IMPORTED_MODULE_3__["default"].get("/api/dashboard/".concat(props.link, "/"), {
+      //   axios.get(`/api/dashboard/${props.link}/`,{
+      axios__WEBPACK_IMPORTED_MODULE_3__["default"].get("/get_data", {
         params: {
+          link: props.link,
           cust_id: props.cust,
           cust_branch: props.branch
         }
@@ -22368,8 +22372,10 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     var get_monitoring_data = function get_monitoring_data() {
       isLoading.value = true;
       timeCount.value = 0;
-      axios__WEBPACK_IMPORTED_MODULE_3__["default"].get("/api/dashboard/".concat(props.link, "/"), {
+      //   axios.get(`/api/dashboard/${props.link}/`,{
+      axios__WEBPACK_IMPORTED_MODULE_3__["default"].get("/get_data", {
         params: {
+          link: props.link,
           cust_id: props.cust,
           cust_branch: props.branch
         }
@@ -22528,8 +22534,9 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     var get_monitoring_data = function get_monitoring_data() {
       isLoading.value = true;
       timeCount.value = 0;
-      axios__WEBPACK_IMPORTED_MODULE_3__["default"].get("/api/dashboard/".concat(props.link, "/"), {
+      axios__WEBPACK_IMPORTED_MODULE_3__["default"].get("/get_data", {
         params: {
+          link: props.link,
           cust_id: props.cust,
           cust_branch: props.branch
         }
@@ -22813,8 +22820,9 @@ __webpack_require__.r(__webpack_exports__);
     var get_monitoring_data = function get_monitoring_data() {
       isLoading.value = true;
       timeCount.value = 0;
-      axios__WEBPACK_IMPORTED_MODULE_3__["default"].get("/api/dashboard/".concat(props.link, "/"), {
+      axios__WEBPACK_IMPORTED_MODULE_3__["default"].get("/get_data", {
         params: {
+          link: props.link,
           cust_id: props.cust,
           cust_branch: props.branch
         }
@@ -22916,8 +22924,9 @@ __webpack_require__.r(__webpack_exports__);
     var get_monitoring_data = function get_monitoring_data() {
       isLoading.value = true;
       timeCount.value = 0;
-      axios__WEBPACK_IMPORTED_MODULE_3__["default"].get('/api/dashboard/get_statbox/', {
+      axios__WEBPACK_IMPORTED_MODULE_3__["default"].get("/get_data", {
         params: {
+          link: props.link,
           cust_id: props.cust,
           cust_branch: props.branch
         }
@@ -23346,7 +23355,29 @@ __webpack_require__.r(__webpack_exports__);
       this.form.branch_id = null;
       setTimeout(function () {
         _this.form.branch_id = temp;
+        _this.get_latest_update();
       }, 100);
+    },
+    get_latest_update: function get_latest_update() {
+      var _this2 = this;
+      this.last_update = '';
+      axios__WEBPACK_IMPORTED_MODULE_10__["default"].get("/api/dashboard/get_last_update/", {
+        params: {
+          cust_id: this.auth.user.customer_id,
+          cust_branch: this.auth.user.customer_branch
+        }
+      }).then(function (res) {
+        var data = res.data;
+        console.log(data);
+        _this2.last_update = data;
+      })["catch"](function () {
+        sweetalert2__WEBPACK_IMPORTED_MODULE_2___default().fire({
+          icon: 'error',
+          title: 'Fetch Failed',
+          text: 'Unable to get data.',
+          timer: 2000
+        });
+      });
     }
   },
   setup: function setup(props) {
@@ -23376,23 +23407,23 @@ __webpack_require__.r(__webpack_exports__);
         month: 'short'
       }), "-").concat(d.getFullYear(), "/").concat(d.getHours().toString().padStart(2, '0'), ":").concat(d.getMinutes().toString().padStart(2, '0'));
     };
-    var get_monitoring_data = function get_monitoring_data() {
-      isLoading.value = true;
-      timeCount.value = 0;
-      axios__WEBPACK_IMPORTED_MODULE_10__["default"].get("/api/dashboard/get_data/".concat(props.auth.user.email)).then(function (res) {
-        table_data.value = res.data.data;
-        last_update.value = res.data.data.last_update;
-        isLoading.value = false;
-      })["catch"](function () {
-        isLoading.value = false;
-        sweetalert2__WEBPACK_IMPORTED_MODULE_2___default().fire({
-          icon: 'error',
-          title: 'Fetch Failed',
-          text: 'Unable to get data.',
-          timer: 2000
-        });
-      });
-    };
+
+    // const get_monitoring_data = () => {
+    //   isLoading.value = true;
+    //   timeCount.value = 0;
+
+    //   axios.get(`/api/dashboard/get_data/${props.auth.user.email}`)
+    //     .then(res => {
+    //       table_data.value = res.data.data;
+    //       last_update.value = res.data.data.last_update;
+    //       isLoading.value = false;
+    //     })
+    //     .catch(() => {
+    //       isLoading.value = false;
+    //       Swal.fire({ icon: 'error', title: 'Fetch Failed', text: 'Unable to get data.', timer: 2000 });
+    //     });
+    // };
+
     var checkTime = function checkTime() {
       if (refreshRate.value > 0) {
         if (Math.floor(Date.now() / 1000) % 60 === 0) timeCount.value++;
@@ -25933,7 +25964,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       key: branch.id,
       value: branch.id
     }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(branch.branch_name), 9 /* TEXT, PROPS */, _hoisted_13);
-  }), 128 /* KEYED_FRAGMENT */))], 544 /* NEED_HYDRATION, NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.form.branch_id]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <div class=\"col-md-4\" v-if=\"form.customer_id && form.branch_id\">\n                    <label class=\"fw-bold\">Search Data</label>\n                    <button button type=\"submit\" class=\"btn btn-md btn-primary border-0 shadow w-100\" @click=\"changeBranch\">\n                        <i class=\"fa fa-filter\"></i> Search\n                    </button>\n                </div> ")])]), $setup.form.customer_id && $setup.form.branch_id ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_14, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_15, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_16, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Last Update : " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.formatCompat($setup.last_update)) + " ", 1 /* TEXT */), _cache[9] || (_cache[9] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1 /* HOISTED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Time : " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.time), 1 /* TEXT */)]), $setup.isLoading ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_17, _cache[10] || (_cache[10] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  }), 128 /* KEYED_FRAGMENT */))], 544 /* NEED_HYDRATION, NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.form.branch_id]])])])])]), $setup.form.customer_id && $setup.form.branch_id ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_14, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_15, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_16, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Last Update : " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.formatCompat($setup.last_update)) + " ", 1 /* TEXT */), _cache[9] || (_cache[9] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1 /* HOISTED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Time : " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.time), 1 /* TEXT */)]), $setup.isLoading ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_17, _cache[10] || (_cache[10] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "loading-spinner"
   }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "spinner-border"
