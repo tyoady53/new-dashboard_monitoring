@@ -66,47 +66,20 @@
             <template v-else>
               <div class="dashboard grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
                 <div class="row">
-                    <div class="col-4">
-                        <ChartBarGroupHorizontal :cust="form.customer_id" :branch="form.branch_id" link="get_stat_test_group"/>
-                    </div>
-                    <div class="col-4">
-                        <ChartDonut :cust="form.customer_id" :branch="form.branch_id" link="get_stat_nilai_kritis" />
-                    </div>
-                    <div class="col-4">
-                        <ChartDonut :cust="form.customer_id" :branch="form.branch_id" link="get_stat_asal_pasien" />
-                    </div>
-                    <div class="col-4">
-                        <ChartLine :cust="form.customer_id" :branch="form.branch_id" link="get_kunj_perjam" />
-                    </div>
-                    <div class="col-4">
-                        <PatientTable :cust="form.customer_id" :branch="form.branch_id" link="get_nilai_ktitis"/>
-                    </div>
-                    <div class="col-4">
-                        <ChartBarGroup :cust="form.customer_id" :branch="form.branch_id" link="get_monitoring_tat" />
-                    </div>
+                    <template v-for="dashboard in dashboards.details">
+                        <template v-if="dashboard.chart_show == 'StatBox'">
+                            <div class="col-12">
+                                <component :is="dashboard.chart_show" :cust="form.customer_id" :branch="form.branch_id" link="get_stat_box"/>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <div :class="`col-${12/dashboards.column_count}`">
+                                <component :is="dashboard.chart_show" :cust="form.customer_id" :branch="form.branch_id" :link="dashboard.data_from"/>
+                            </div>
+                        </template>
+                    </template>
+                    <!-- {{ dashboards }} -->
                 </div>
-
-                <StatBox :cust="form.customer_id" :branch="form.branch_id"/>
-                <!-- <div class="row">
-                    <div class="col-2">
-                        <StatBox label="KUNJUNGAN" value="363" />
-                    </div>
-                    <div class="col-2">
-                        <StatBox label="SAMPEL BELUM AMBIL" value="173" />
-                    </div>
-                    <div class="col-2">
-                        <StatBox label="SAMPEL TERIMA" value="451" />
-                    </div>
-                    <div class="col-2">
-                        <StatBox label="PEMERIKSAAN BELUM SELESAI" value="5,134" />
-                    </div>
-                    <div class="col-2">
-                        <StatBox label="PEMERIKSAAN SELESAI" value="4,345" />
-                    </div>
-                    <div class="col-2">
-                        <StatBox label="TOTAL PEMERIKSAAN" value="9,479" class="col-span-5 text-lg font-bold" />
-                    </div>
-                </div> -->
               </div>
             </template>
           </div>
@@ -186,6 +159,7 @@ export default {
         setTimeout(() => {
             this.form.branch_id = temp;
             this.get_latest_update();
+            this.get_monitoring_data();
         }, 100);
     },
 
@@ -211,9 +185,32 @@ export default {
             });
         });
     },
+
+    get_monitoring_data() {
+        this.dashboards = [];
+        axios.get(`/get_dashboard`,{
+            params: {
+                cust_id: this.form.customer_id,
+                cust_branch: this.form.branch_id
+            }
+        })
+            .then(res => {
+                const data = res.data.data;
+                this.dashboards = data;
+            })
+            .catch(() => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Fetch Failed',
+                text: 'Unable to get data.',
+                timer: 2000
+            });
+        });
+    },
   },
 
   setup(props) {
+    const dashboards = ref([]);
     const table_data = ref([]);
     const last_update = ref('');
     const time = ref('');
@@ -268,6 +265,7 @@ export default {
       isLoading,
       formatCompat,
       form,
+      dashboards,
     };
   },
 };

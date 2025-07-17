@@ -29,6 +29,7 @@ Route::get('/', function () {
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/home', [MonitoringController::class, 'index'])->name('apps.index');
     Route::get('/get_data', [MonitoringController::class, 'get_data_monitoring'])->name('apps.get_data');
+    Route::get('/get_dashboard', [MonitoringController::class, 'get_dashboard'])->name('apps.get_dashboard');
 
     Route::prefix('user')->group(function (){
         // Route::get('/', [UserController::class, 'index'])->name('apps.user.index');

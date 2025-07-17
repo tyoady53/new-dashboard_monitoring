@@ -13,6 +13,7 @@ use App\Models\DashTotalKritis;
 use App\Models\DashVisitation;
 use App\Models\DashVisitClasification;
 use App\Models\DashVisitHour;
+use App\Models\DisplaySetup;
 use App\Models\TableSetting;
 use App\Models\User;
 use Carbon\Carbon;
@@ -387,39 +388,45 @@ class MonitoringController extends Controller
         return $formatted;
     }
 
+    public function get_dashboard(Request $request) {
+        $data = DisplaySetup::where('customer_id', $request->cust_id)->where('branch_id', $request->cust_branch)->with('details.setting')->first();
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Monitoring Data',
+            'data'      => $data
+        ]);
+    }
+
     public function get_data_monitoring(Request $request) {
         $auth = auth()->user();
         $return_data = [];
-
-        // if($auth->customer_id != (int)$request->cust_id) {
-        //     return $return_data;
-        // }
 
         $cust = Customer::where('id', $request->cust_id)->first();
         $branch = CustomerBranch::where('id', $request->cust_branch)->first();
 
         switch ($request->link) {
-            case 'get_stat_test_group':
+            case 'dash_test_group':
                 $return_data = $this->get_stat_test_group($cust,$branch);
                 break;
 
-            case 'get_stat_nilai_kritis':
+            case 'dash_total_kritis':
                 $return_data = $this->get_stat_nilai_kritis($cust,$branch);
                 break;
 
-            case 'get_stat_asal_pasien':
+            case 'dash_visit_clasification':
                 $return_data = $this->get_stat_asal_pasien($cust,$branch);
                 break;
 
-            case 'get_kunj_perjam':
+            case 'dash_visit_hour':
                 $return_data = $this->get_kunj_perjam($cust,$branch);
                 break;
 
-            case 'get_nilai_ktitis':
+            case 'dash_nilai_kritis':
                 $return_data = $this->get_nilai_ktitis($cust,$branch);
                 break;
 
-            case 'get_monitoring_tat':
+            case 'dash_tat':
                 $return_data = $this->get_monitoring_tat($cust,$branch);
                 break;
 

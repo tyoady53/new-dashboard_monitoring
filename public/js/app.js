@@ -23356,6 +23356,7 @@ __webpack_require__.r(__webpack_exports__);
       setTimeout(function () {
         _this.form.branch_id = temp;
         _this.get_latest_update();
+        _this.get_monitoring_data();
       }, 100);
     },
     get_latest_update: function get_latest_update() {
@@ -23378,9 +23379,30 @@ __webpack_require__.r(__webpack_exports__);
           timer: 2000
         });
       });
+    },
+    get_monitoring_data: function get_monitoring_data() {
+      var _this3 = this;
+      this.dashboards = [];
+      axios__WEBPACK_IMPORTED_MODULE_10__["default"].get("/get_dashboard", {
+        params: {
+          cust_id: this.form.customer_id,
+          cust_branch: this.form.branch_id
+        }
+      }).then(function (res) {
+        var data = res.data.data;
+        _this3.dashboards = data;
+      })["catch"](function () {
+        sweetalert2__WEBPACK_IMPORTED_MODULE_2___default().fire({
+          icon: 'error',
+          title: 'Fetch Failed',
+          text: 'Unable to get data.',
+          timer: 2000
+        });
+      });
     }
   },
   setup: function setup(props) {
+    var dashboards = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
     var table_data = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
     var last_update = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)('');
     var time = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)('');
@@ -23436,7 +23458,8 @@ __webpack_require__.r(__webpack_exports__);
       time: time,
       isLoading: isLoading,
       formatCompat: formatCompat,
-      form: form
+      form: form,
+      dashboards: dashboards
     };
   }
 });
@@ -25889,31 +25912,11 @@ var _hoisted_19 = {
   "class": "row"
 };
 var _hoisted_20 = {
-  "class": "col-4"
-};
-var _hoisted_21 = {
-  "class": "col-4"
-};
-var _hoisted_22 = {
-  "class": "col-4"
-};
-var _hoisted_23 = {
-  "class": "col-4"
-};
-var _hoisted_24 = {
-  "class": "col-4"
-};
-var _hoisted_25 = {
-  "class": "col-4"
+  key: 0,
+  "class": "col-12"
 };
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_Head = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("Head");
-  var _component_ChartBarGroupHorizontal = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("ChartBarGroupHorizontal");
-  var _component_ChartDonut = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("ChartDonut");
-  var _component_ChartLine = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("ChartLine");
-  var _component_PatientTable = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("PatientTable");
-  var _component_ChartBarGroup = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("ChartBarGroup");
-  var _component_StatBox = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("StatBox");
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_Head, null, {
     "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
       return _cache[4] || (_cache[4] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("title", null, "Patient Monitoring - Wynacom Information System", -1 /* HOISTED */)]);
@@ -25968,34 +25971,20 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     "class": "loading-spinner"
   }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "spinner-border"
-  })], -1 /* HOISTED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h3", null, "Loading Data", -1 /* HOISTED */)]))) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_18, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_19, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_20, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_ChartBarGroupHorizontal, {
-    cust: $setup.form.customer_id,
-    branch: $setup.form.branch_id,
-    link: "get_stat_test_group"
-  }, null, 8 /* PROPS */, ["cust", "branch"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_21, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_ChartDonut, {
-    cust: $setup.form.customer_id,
-    branch: $setup.form.branch_id,
-    link: "get_stat_nilai_kritis"
-  }, null, 8 /* PROPS */, ["cust", "branch"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_22, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_ChartDonut, {
-    cust: $setup.form.customer_id,
-    branch: $setup.form.branch_id,
-    link: "get_stat_asal_pasien"
-  }, null, 8 /* PROPS */, ["cust", "branch"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_23, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_ChartLine, {
-    cust: $setup.form.customer_id,
-    branch: $setup.form.branch_id,
-    link: "get_kunj_perjam"
-  }, null, 8 /* PROPS */, ["cust", "branch"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_24, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_PatientTable, {
-    cust: $setup.form.customer_id,
-    branch: $setup.form.branch_id,
-    link: "get_nilai_ktitis"
-  }, null, 8 /* PROPS */, ["cust", "branch"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_25, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_ChartBarGroup, {
-    cust: $setup.form.customer_id,
-    branch: $setup.form.branch_id,
-    link: "get_monitoring_tat"
-  }, null, 8 /* PROPS */, ["cust", "branch"])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_StatBox, {
-    cust: $setup.form.customer_id,
-    branch: $setup.form.branch_id
-  }, null, 8 /* PROPS */, ["cust", "branch"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <div class=\"row\">\n                    <div class=\"col-2\">\n                        <StatBox label=\"KUNJUNGAN\" value=\"363\" />\n                    </div>\n                    <div class=\"col-2\">\n                        <StatBox label=\"SAMPEL BELUM AMBIL\" value=\"173\" />\n                    </div>\n                    <div class=\"col-2\">\n                        <StatBox label=\"SAMPEL TERIMA\" value=\"451\" />\n                    </div>\n                    <div class=\"col-2\">\n                        <StatBox label=\"PEMERIKSAAN BELUM SELESAI\" value=\"5,134\" />\n                    </div>\n                    <div class=\"col-2\">\n                        <StatBox label=\"PEMERIKSAAN SELESAI\" value=\"4,345\" />\n                    </div>\n                    <div class=\"col-2\">\n                        <StatBox label=\"TOTAL PEMERIKSAAN\" value=\"9,479\" class=\"col-span-5 text-lg font-bold\" />\n                    </div>\n                </div> ")]))])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])], 64 /* STABLE_FRAGMENT */);
+  })], -1 /* HOISTED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h3", null, "Loading Data", -1 /* HOISTED */)]))) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_18, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_19, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.dashboards.details, function (dashboard) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, [dashboard.chart_show == 'StatBox' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_20, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)((0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveDynamicComponent)(dashboard.chart_show), {
+      cust: $setup.form.customer_id,
+      branch: $setup.form.branch_id,
+      link: "get_stat_box"
+    }, null, 8 /* PROPS */, ["cust", "branch"]))])) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
+      key: 1,
+      "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)("col-".concat(12 / $setup.dashboards.column_count))
+    }, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)((0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveDynamicComponent)(dashboard.chart_show), {
+      cust: $setup.form.customer_id,
+      branch: $setup.form.branch_id,
+      link: dashboard.data_from
+    }, null, 8 /* PROPS */, ["cust", "branch", "link"]))], 2 /* CLASS */))], 64 /* STABLE_FRAGMENT */);
+  }), 256 /* UNKEYED_FRAGMENT */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" {{ dashboards }} ")])]))])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])], 64 /* STABLE_FRAGMENT */);
 }
 
 /***/ }),
