@@ -24,7 +24,7 @@
                 <i class="fa fa-plus"></i>
                 Customer/Branch
             </Link>
-            <Link v-if="hasAnyPermission(['display_charts.index'])" href="/permission" class="dropdown-item" role="button">
+            <Link v-if="hasAnyPermission(['display_charts.index'])" href="/editor" class="dropdown-item" role="button">
                 <i class="fas fa-chart-line"></i>
                 Display Setup
             </Link>
