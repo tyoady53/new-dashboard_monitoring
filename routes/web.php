@@ -3,8 +3,10 @@
 use App\Http\Controllers\Apps\PermissionController;
 use App\Http\Controllers\Apps\RoleController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DisplaySetupController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\UserController;
+use App\Models\DisplaySetup;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,6 +30,9 @@ Route::get('/', function () {
 
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/home', [MonitoringController::class, 'index'])->name('apps.index');
+
+    Route::get('/editor', [DisplaySetupController::class, 'index'])->name('apps.editor');
+
     Route::get('/get_data', [MonitoringController::class, 'get_data_monitoring'])->name('apps.get_data');
     Route::get('/get_dashboard', [MonitoringController::class, 'get_dashboard'])->name('apps.get_dashboard');
 
