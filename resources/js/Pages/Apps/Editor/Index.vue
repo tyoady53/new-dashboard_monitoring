@@ -4,93 +4,95 @@
         <div class="container-fluid p-0">
             <!-- Sticky Header -->
             <div class="card border-0 rounded-3 shadow-border-top-purple p-3">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="fw-bold">Customer <span
-                                    style="color:red;">*</span></label>
-                            <select v-model="form.customer_id
-                                " class="form-select" @change="getBranch" :disabled="selected_cust != null">
-                                <option disabled value>
-                                    Choose One
-                                </option>
-                                <option v-for="customer in master_customers" :key="customer"
-                                    :value="customer.id">
-                                    {{
-                                        customer.customer_name
-                                    }}
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="fw-bold">Branch <span style="color:red;">*</span></label>
-                            <select v-model="form.branch_id" class="form-select" @change="changeBranch">
-                                <option disabled value>
-                                    Choose One
-                                </option>
-                                <option v-for="branch in filteredChain" :key="branch.id"
-                                    :value="branch.id">
-                                    {{
-                                        branch.branch_name
-                                    }}
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 sticky-top d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center gap-3">
-                            <label class="fw-bold">Column in a Row</label>
-                            <select v-model.number="columns" class="form-control w-auto">
-                                <option v-for="n in [1,2,3,4,6]" :key="n" :value="n">{{ n }}</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-primary" @click="addChart">New Chart</button>
-                        <button class="btn btn-link" @click="toggleSection">
-                            <label>{{ sectionVisible ? 'Hide' : 'Show' }}&nbsp</label>
-                            <i :class="sectionVisible ? 'fa fa-chevron-up' : 'fa fa-chevron-down'"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Dynamic Chart Inputs -->
-                <div v-show="sectionVisible" class="p-3" style="background: white;">
-                    <div v-for="(chart, index) in charts" :key="index" >
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span>Chart #{{ index + 1 }}</span>
-                                <button class="btn btn-sm btn-danger" @click="removeChart(index)">×</button>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-2">
-                                    <label class="form-label">Data From</label>
-                                    <select v-model="chart.dataFrom" class="form-select">
-                                        <option v-for="table in tables" :value="table.table_name">{{ table.description }}</option>
-                                    </select>
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label">Chart Type</label>
-                                    <select v-model="chart.chartType" class="form-select">
-                                        <option v-for="table in getChartOptions(chart)" :value="table">
-                                            {{ table }}
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label">Sequence Number</label>
-                                    <input v-model.number="chart.sequence" class="form-control" type="number" />
-                                </div>
+                <form @submit.prevent="submit">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="fw-bold">Customer <span
+                                        style="color:red;">*</span></label>
+                                <select v-model="form.customer_id
+                                    " class="form-select" @change="getBranch" :disabled="selected_cust != null">
+                                    <option disabled value>
+                                        Choose One
+                                    </option>
+                                    <option v-for="customer in master_customers" :key="customer"
+                                        :value="customer.id">
+                                        {{
+                                            customer.customer_name
+                                        }}
+                                    </option>
+                                </select>
                             </div>
                         </div>
+
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="fw-bold">Branch <span style="color:red;">*</span></label>
+                                <select v-model="form.branch_id" class="form-select" @change="changeBranch">
+                                    <option disabled value>
+                                        Choose One
+                                    </option>
+                                    <option v-for="branch in filteredChain" :key="branch.id"
+                                        :value="branch.id">
+                                        {{
+                                            branch.branch_name
+                                        }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 sticky-top d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <label class="fw-bold">Column in a Row</label>
+                                <select v-model.number="columns" class="form-control w-auto">
+                                    <option v-for="n in [1,2,3,4,6]" :key="n" :value="n">{{ n }}</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" @click="addChart" type="button">New Chart</button>
+                            <button class="btn btn-link" @click="toggleSection" type="button">
+                                <label>{{ sectionVisible ? 'Hide' : 'Show' }}&nbsp</label>
+                                <i :class="sectionVisible ? 'fa fa-chevron-up' : 'fa fa-chevron-down'"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="d-flex align-items-center justify-content-between" v-if="charts.length">
-                        <hr>
-                        <button class="btn btn-success">Save</button>
+
+                    <!-- Dynamic Chart Inputs -->
+                    <div v-show="sectionVisible" class="p-3" style="background: white;">
+                        <div v-for="(chart, index) in charts" :key="index" >
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span>Chart #{{ index + 1 }}</span>
+                                    <button class="btn btn-sm btn-danger" @click="removeChart(index)">×</button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <label class="form-label">Data From</label>
+                                        <select v-model="chart.dataFrom" class="form-select">
+                                            <option v-for="table in tables" :value="table.table_name">{{ table.description }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Chart Type</label>
+                                        <select v-model="chart.chartType" class="form-select">
+                                            <option v-for="table in getChartOptions(chart)" :value="table">
+                                                {{ table }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Sequence Number</label>
+                                        <input v-model.number="chart.sequence" class="form-control" type="number" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between" v-if="charts.length">
+                            <hr>
+                            <button class="btn btn-success" type="submit" :disabled="!form.branch_id || !form.customer_id">Save</button>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
             <div class="dashboard grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
                 <div class="row">
@@ -148,9 +150,9 @@
         },
 
         data: () => ({
-            columns: 2,
+            // columns: 2,
             sectionVisible: false,
-            charts: [],
+            // charts: [],
             charts_data: {
                 dash_test_group : {
                     categories  : ['URINALISIS', 'KIMIA KLINIK', 'IMUNOLOGI', 'HEMATOLOGI', 'HDT', 'FAECES', 'FAAL KOAGULASI', 'DRUG MONITORING/NAPZA', 'CAIRAN TUBUH', 'BIOLOGI MOLEKULER / LITBANG', 'ANALISA GAS DARAH'],
@@ -237,7 +239,7 @@
 
             getChartProps(chart) {
                 const data = this.charts_data[chart.dataFrom] || {};
-                // Handle Bar/Line style
+
                 if ('categories' in data && 'series' in data) {
                     console.log('categories');
                 return {
@@ -315,9 +317,42 @@
             const form = reactive({
                 customer_id : '',
                 branch_id : ''
-            })
+            });
+
+            const columns = ref(3);
+
+            const charts = reactive([]);
+
+            const submit = () => {
+                const body = {
+                    customer_id : form.customer_id,
+                    branch_id : form.branch_id,
+                    columns : columns.value,
+                    charts : charts
+                };
+                console.log(body)
+                Inertia.post('/editor/post', {
+                    customer_id : form.customer_id,
+                    branch_id : form.branch_id,
+                    columns : columns.value,
+                    charts : charts
+                }, {
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'User saved successfully.',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    },
+                });
+            }
+
             return {
                 form,
+                submit,columns,
+                charts
                 // dataTableOptions,
             }
         }

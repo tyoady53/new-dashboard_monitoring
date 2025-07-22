@@ -32,6 +32,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/home', [MonitoringController::class, 'index'])->name('apps.index');
 
     Route::get('/editor', [DisplaySetupController::class, 'index'])->name('apps.editor');
+    Route::post('/editor/post', [DisplaySetupController::class, 'store'])->name('apps.editor.store');
 
     Route::get('/get_data', [MonitoringController::class, 'get_data_monitoring'])->name('apps.get_data');
     Route::get('/get_dashboard', [MonitoringController::class, 'get_dashboard'])->name('apps.get_dashboard');

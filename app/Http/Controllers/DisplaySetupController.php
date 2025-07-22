@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\CustomerBranch;
 use App\Models\DisplaySetup;
+use App\Models\DisplaySetupDetail;
 use App\Models\TableSetting;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -58,7 +59,37 @@ class DisplaySetupController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = DisplaySetup::where('customer_id',$request->customer_id)->where('branch_id',$request->branch_id)->first();
+
+        if($data) {
+            $this->update_data($request);
+        }
+
+        $insert_arr = [
+            'customer_id'   => $request->customer_id,
+            'branch_id'     => $request->branch_id,
+            'column_count'  => $request->columns,
+            'edited_by'     => auth()->user()->id,
+        ];
+
+        $insert = DisplaySetup::create($insert_arr);
+
+        foreach($request->charts as $chart) {
+            // dd($request->charts, $chart['sequence']);
+
+            DisplaySetupDetail::create([
+                'display_id'    => $insert->id,
+                'sequence'      => $chart['sequence'],
+                'chart_show'    => $chart['chartType'],
+                'data_from'     => $chart['dataFrom']
+            ]);
+        }
+
+        return redirect()->route('apps.index');
+    }
+
+    function update_data($request) {
+        dd($request);
     }
 
     /**
