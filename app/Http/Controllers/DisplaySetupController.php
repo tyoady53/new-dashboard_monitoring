@@ -63,26 +63,27 @@ class DisplaySetupController extends Controller
 
         if($data) {
             $this->update_data($request,$data);
-        }
+        } else {
+            $insert_arr = [
+                'customer_id'   => $request->customer_id,
+                'branch_id'     => $request->branch_id,
+                'column_count'  => $request->columns,
+                'edited_by'     => auth()->user()->id,
+            ];
 
-        $insert_arr = [
-            'customer_id'   => $request->customer_id,
-            'branch_id'     => $request->branch_id,
-            'column_count'  => $request->columns,
-            'edited_by'     => auth()->user()->id,
-        ];
+            $insert = DisplaySetup::create($insert_arr);
 
-        $insert = DisplaySetup::create($insert_arr);
+            foreach($request->charts as $chart) {
+                // dd($request->charts, $chart['sequence']);
 
-        foreach($request->charts as $chart) {
-            // dd($request->charts, $chart['sequence']);
+                DisplaySetupDetail::create([
+                    'display_id'    => $insert->id,
+                    'sequence'      => $chart['sequence'],
+                    'chart_show'    => $chart['chartType'],
+                    'data_from'     => $chart['dataFrom']
+                ]);
+            }
 
-            DisplaySetupDetail::create([
-                'display_id'    => $insert->id,
-                'sequence'      => $chart['sequence'],
-                'chart_show'    => $chart['chartType'],
-                'data_from'     => $chart['dataFrom']
-            ]);
         }
 
         return redirect()->route('apps.index');
@@ -115,7 +116,7 @@ class DisplaySetupController extends Controller
             ]);
         }
 
-        return redirect()->route('apps.index');
+        // return redirect()->route('apps.index');
     }
 
     /**
