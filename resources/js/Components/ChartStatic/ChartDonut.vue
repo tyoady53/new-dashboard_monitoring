@@ -1,16 +1,16 @@
 <template>
-  <div class="card shadow-sm p-4 text-center">
-    <h5 class="text-lg font-semibold mb-4">{{ title }}</h5>
-    <apexchart
-      type="donut"
-      height="300"
-      :options="chartOptions"
-      :series="series"
-    />
-    <div v-if="total" class="mt-4 text-sm text-gray-500">
-      Total: <strong>{{ total }}</strong>
+    <h5 class="text-lg font-semibold mb-2 text-center">{{ title }}</h5>
+    <div class="card shadow-sm p-4 text-center chart">
+        <apexchart
+        type="donut"
+        height="300"
+        :options="chartOptions"
+        :series="series"
+        />
+        <div v-if="total" class="mt-4 text-sm text-gray-500">
+        Total: <strong>{{ total }}</strong>
+        </div>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -49,10 +49,30 @@ const chartOptions = computed(() => ({
   },
   labels: props.labels,
   dataLabels: {
-    enabled: true
+    enabled: true,
+    formatter: function (val, opts) {
+        const series = opts?.w?.config?.series;
+        const index = opts?.seriesIndex;
+
+        if (Array.isArray(series) && typeof index === 'number') {
+            return series[index];
+        }
+
+        return ''; // fallback if anything is wrong
+    },
+    style: {
+      fontSize: '14px'
+    }
   },
   legend: {
     position: 'bottom'
+  },
+  plotOptions: {
+    pie: {
+      donut: {
+        size: '50%'
+      }
+    }
   },
   colors: colors.value // optional: adjust for 2-3 values
 }));

@@ -1,13 +1,13 @@
 <template>
-  <div class="card shadow-sm p-4">
     <h5 class="text-lg font-semibold mb-2">{{ title }}</h5>
-    <apexchart
-      type="bar"
-      height="300"
-      :options="chartOptions"
-      :series="series"
-    />
-  </div>
+    <div class="card shadow-sm p-4 chart">
+        <apexchart
+        type="bar"
+        height="300"
+        :options="chartOptions"
+        :series="series"
+        />
+    </div>
 </template>
 
 <script setup>

@@ -34,6 +34,8 @@ Route::prefix('dashboard')->group(function (){
     // Route::get('/get_nilai_ktitis', [MonitoringController::class, 'get_nilai_ktitis']);
     // Route::get('/get_statbox', [MonitoringController::class, 'get_statbox']);
 
+    Route::get('/get_setup', [MonitoringController::class, 'get_setup']);
+
     Route::get('/get_last_update', [MonitoringController::class, 'get_last_update']);
     // Route::get('/get_data', [MonitoringController::class, 'get_data']);
     // Route::post('/store', [MonitoringController::class, 'store']);

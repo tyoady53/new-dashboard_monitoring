@@ -49,7 +49,19 @@
                                     <option v-for="n in [1,2,3,4,6]" :key="n" :value="n">{{ n }}</option>
                                 </select>
                             </div>
-                            <button class="btn btn-primary" @click="addChart" type="button">New Chart</button>
+                            <div class="mb-3">
+                                <div class="row">
+                                    <div class="col-3 mx-auto">
+                                        <label class="switch me-2">
+                                            <input type="checkbox" v-model="stat_box">
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
+                                    <div class="col-9">
+                                        <span>Stat Box</span>
+                                    </div>
+                                </div>
+                            </div>
                             <button class="btn btn-link" @click="toggleSection" type="button">
                                 <label>{{ sectionVisible ? 'Hide' : 'Show' }}&nbsp</label>
                                 <i :class="sectionVisible ? 'fa fa-chevron-up' : 'fa fa-chevron-down'"></i>
@@ -59,7 +71,10 @@
 
                     <!-- Dynamic Chart Inputs -->
                     <div v-show="sectionVisible" class="p-3" style="background: white;">
-                        <div v-for="(chart, index) in charts" :key="index" >
+                        <div class="mb-2">
+                            <button class="btn btn-primary" @click="addChart" type="button">New Chart</button>
+                        </div>
+                        <div v-for="(chart, index) in charts" :key="chart.sequence">
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <span>Chart #{{ index + 1 }}</span>
@@ -82,7 +97,7 @@
                                     </div>
                                     <div class="mb-2">
                                         <label class="form-label">Sequence Number</label>
-                                        <input v-model.number="chart.sequence" class="form-control" type="number" />
+                                        <input v-model.number="chart.sequence" class="form-control" type="number" @input="keyUp(index)"/>
                                     </div>
                                 </div>
                             </div>
@@ -99,6 +114,30 @@
                     <template v-for="chart in charts">
                         <div :class="`col-${12/columns}`">
                             <component :is="chart.chartType" v-bind="getChartProps(chart)"/>
+                        </div>
+                    </template>
+                    <template v-if="stat_box">
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-2">
+                                    <StatBox label="KUNJUNGAN" value="363" />
+                                </div>
+                                <div class="col-2">
+                                    <StatBox label="SAMPEL BELUM AMBIL" value="173" />
+                                </div>
+                                <div class="col-2">
+                                    <StatBox label="SAMPEL TERIMA" value="451" />
+                                </div>
+                                <div class="col-2">
+                                    <StatBox label="PEMERIKSAAN BELUM SELESAI" value="5,134" />
+                                </div>
+                                <div class="col-2">
+                                    <StatBox label="PEMERIKSAAN SELESAI" value="4,345" />
+                                </div>
+                                <div class="col-2">
+                                    <StatBox label="TOTAL PEMERIKSAAN" value="9,479" class="col-span-5 text-lg font-bold" />
+                                </div>
+                            </div>
                         </div>
                     </template>
                 </div>
@@ -237,33 +276,74 @@
                 return [];
             },
 
+            getTableDescription(type) {
+                return this.tables?.find(d => d.table_name === type)?.description || type;
+            },
+
             getChartProps(chart) {
+                const type = chart.dataFrom;
                 const data = this.charts_data[chart.dataFrom] || {};
+                const title = this.getTableDescription(type);
 
                 if ('categories' in data && 'series' in data) {
-                    console.log('categories');
-                return {
-                    categories: data.categories,
-                    series: data.series
-                };
+                    // console.log('categories');
+                    return {
+                        categories: data.categories,
+                        series: data.series,
+                        title : title
+                    };
                 }
 
                 // Handle Donut/Pie style
                 if ('labels' in data && 'series' in data) {
                     return {
                         labels: data.labels,
-                        series: data.series
+                        series: data.series,
+                        title : title
                     };
                 }
 
                 if ('patients' in data) {
                     return {
+                        title : title,
                         patients: data.patients
                     };
                 }
 
                 // Default: return empty
                 return {};
+            },
+
+            keyUp(index) {
+                if(this.charts[index].sequence) {
+                    const currentSequence = this.charts[index].sequence;
+                    var affected = 0;
+                    // const total = this.charts.length + 1;
+
+                    // const duplicate = this.charts.find((d, i) => d.sequence === currentSequence && i !== index);
+                    const duplicateIndex = this.charts.findIndex(
+                        (d, i) => d.sequence === currentSequence && i !== index
+                    );
+
+                    if (duplicateIndex !== -1) {
+                        // Conflict detected
+                        if (index > duplicateIndex) {
+                        // Move backward: Shift up other items to fill the gap
+                            for (let i = duplicateIndex; i < index; i++) {
+                                this.charts[i].sequence += 1;
+                            }
+                        } else {
+                            // Move forward: Shift down other items
+                            for (let i = index + 1; i <= duplicateIndex; i++) {
+                                this.charts[i].sequence -= 1;
+                            }
+                        }
+                    }
+                    // alert('Key Up on index ' + index + '; Value : ' + this.charts[index].sequence + '; From INDEX number : '+duplicateIndex + '; Affected index : ' + affected);
+                    this.charts.sort((a, b) => a.sequence - b.sequence);
+                    this.charts = [...this.charts];
+                    // console.log(this.charts)
+                }
             },
 
             getBranch() {
@@ -278,9 +358,33 @@
                 this.form.branch_id = null;
                 setTimeout(() => {
                     this.form.branch_id = temp;
-                    this.get_latest_update();
-                    this.get_monitoring_data();
                 }, 100);
+
+                this.getData(this.form.customer_id,temp);
+            },
+
+            getData(customer_id,branch_id) {
+                axios.get(`/api/dashboard/get_setup/`,{
+                    params: {
+                        cust_id: customer_id,
+                        cust_branch: branch_id
+                    }
+                })
+                    .then(res => {
+                        const data = res.data;
+                        this.columns = data.data.column_count
+                        this.charts = data.details
+                        console.log(data.statbox)
+                        this.stat_box = data.statbox
+                    })
+                    .catch(() => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Fetch Failed',
+                        text: 'Unable to get data.',
+                        timer: 2000
+                    });
+                });
             },
 
             toggleSection() {
@@ -320,22 +424,25 @@
             });
 
             const columns = ref(3);
+            const stat_box = ref(false);
 
-            const charts = reactive([]);
+            const charts = ref([]);
 
             const submit = () => {
                 const body = {
                     customer_id : form.customer_id,
                     branch_id : form.branch_id,
                     columns : columns.value,
-                    charts : charts
+                    charts : charts.value,
+                    stat_box : stat_box.value
                 };
                 console.log(body)
                 Inertia.post('/editor/post', {
                     customer_id : form.customer_id,
                     branch_id : form.branch_id,
                     columns : columns.value,
-                    charts : charts
+                    charts : charts.value,
+                    stat_box : stat_box.value,
                 }, {
                     onSuccess: () => {
                         Swal.fire({
@@ -352,8 +459,7 @@
             return {
                 form,
                 submit,columns,
-                charts
-                // dataTableOptions,
+                charts,stat_box
             }
         }
     }

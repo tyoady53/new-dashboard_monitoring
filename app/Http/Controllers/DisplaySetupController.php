@@ -62,7 +62,7 @@ class DisplaySetupController extends Controller
         $data = DisplaySetup::where('customer_id',$request->customer_id)->where('branch_id',$request->branch_id)->first();
 
         if($data) {
-            $this->update_data($request);
+            $this->update_data($request,$data);
         }
 
         $insert_arr = [
@@ -88,8 +88,34 @@ class DisplaySetupController extends Controller
         return redirect()->route('apps.index');
     }
 
-    function update_data($request) {
-        dd($request);
+    function update_data($request,$data) {
+        $chart_arr = $request->charts;
+        $data->update([
+            'column_count'  => $request->columns,
+            'edited_by'     => auth()->user()->id,
+        ]);
+
+        if($request->stat_box) {
+                array_push($chart_arr, ['sequence'      => count($chart_arr) + 1,
+                'chartType'    => 'StatBox',
+                'dataFrom'     => 'dash_visitation']
+            );
+        }
+
+        DisplaySetupDetail::where('display_id', $data->id)->delete();
+
+        foreach($chart_arr as $chart) {
+            // dd($chart);
+
+            DisplaySetupDetail::create([
+                'display_id'    => $data->id,
+                'sequence'      => $chart['sequence'],
+                'chart_show'    => $chart['chartType'],
+                'data_from'     => $chart['dataFrom']
+            ]);
+        }
+
+        return redirect()->route('apps.index');
     }
 
     /**

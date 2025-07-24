@@ -51,7 +51,7 @@
         <div class="card border-0 rounded-3 shadow-border-top-purple mt-4" v-if="form.customer_id && form.branch_id">
           <div class="card-body">
             <div class="text-center">
-              Last Update : {{ formatCompat(last_update) }} <br />
+              Last Update : {{ last_update }} <br />
               Time : {{ time }}
             </div>
 

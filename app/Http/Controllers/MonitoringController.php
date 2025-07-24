@@ -14,6 +14,7 @@ use App\Models\DashVisitation;
 use App\Models\DashVisitClasification;
 use App\Models\DashVisitHour;
 use App\Models\DisplaySetup;
+use App\Models\DisplaySetupDetail;
 use App\Models\TableSetting;
 use App\Models\User;
 use Carbon\Carbon;
@@ -363,6 +364,40 @@ class MonitoringController extends Controller
         // \Log::info("Connection closed. Background task is running.");
 
         return;
+    }
+
+    public function get_setup(Request $request) {
+        $return_data = array();
+        $statBox = 0;
+        $data = DisplaySetup::where('customer_id', $request->cust_id)->where('branch_id', $request->cust_branch)->with(['details' => function ($query) {
+            $query->where('chart_show', '!=', 'StatBox'); // exclude from results
+        }])->first();
+
+        $hasStatBox = DisplaySetupDetail::where('display_id', optional($data)->id)
+        ->where('chart_show', 'StatBox')
+        ->exists();
+
+        if ($data) {
+            $return_data['data'] = $data->makeHidden(['id','details']);
+
+            $details = $data->details->map(function ($item) {
+                return [
+                    'sequence'   => $item->sequence,
+                    'chartType'  => $item->chart_show,
+                    'dataFrom'   => $item->data_from,
+                ];
+            });
+
+            if($hasStatBox) {
+                $statBox = 1;
+            }
+            $return_data['details'] = $details;
+
+            $return_data['statbox'] = $hasStatBox;
+        }
+
+        return $return_data;
+        dd($data);
     }
 
     public function get_last_update(Request $request) {
