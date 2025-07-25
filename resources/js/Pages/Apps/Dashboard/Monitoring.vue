@@ -32,7 +32,7 @@
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label class="fw-bold">Branch <span style="color:red;">*</span></label>
-                        <select v-model="form.branch_id" class="form-select" @change="changeBranch">
+                        <select v-model="form.branch_id" class="form-select" @change="changeBranch" :disabled="selected_branch != null">
                             <option disabled value>
                                 Choose One
                             </option>
@@ -142,6 +142,11 @@ export default {
   mounted() {
     if(this.selected_cust) {
         this.form.customer_id = this.selected_cust;
+    }
+    if(this.selected_branch) {
+        this.form.branch_id = this.selected_branch;
+        this.get_latest_update();
+        this.get_monitoring_data();
     }
   },
 
