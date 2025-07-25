@@ -29,10 +29,11 @@ class UserController extends Controller
             }
         }
         if(str_contains($a, 'users.index')){
+            // dd(Auth::user()->roles[0]['id']);
             if(Auth::user()->roles[0]['id'] == 1) {
                 $users = User::with('has_company','has_branch','roles')->orderBy('name')->paginate(25);
             } else {
-                $users = User::with('has_company','has_branch','roles')->where('customer_id',Auth::user()->customer_id)->where('customer_branch',Auth::user()->customer_branch)->orderBy('name')->paginate(25);
+                $users = User::with('has_company','has_branch','roles')->where('customer_id',Auth::user()->customer_id)->orderBy('name')->paginate(25);
             }
 
             return Inertia::render('Apps/User/Index', [

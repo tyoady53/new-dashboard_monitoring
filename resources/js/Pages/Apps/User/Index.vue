@@ -23,7 +23,7 @@
                                 <thead>
                                     <tr>
                                         <th scope="col" class="text-center" style="width:3%">No</th>
-                                        <th scope="col" class="text-center" style="width:22 %"> User Name </th>
+                                        <th scope="col" class="text-center" style="width:22%"> User Name </th>
                                         <th scope="col" class="text-center" style="width:20%"> Email </th>
                                         <th scope="col" class="text-center" style="width:15%">Customer</th>
                                         <th scope="col" class="text-center" style="width:15%">Branch</th>
@@ -36,8 +36,8 @@
                                         <td class="text-end">{{ index + 1 }}</td>
                                         <td>{{ user.name }}</td>
                                         <td>{{ user.email }}</td>
-                                        <td>{{ user.has_company.customer_name }}</td>
-                                        <td>{{ user.has_branch.branch_name }}</td>
+                                        <td>{{ (user.has_company ? user.has_company.customer_name : '-') }}</td>
+                                        <td>{{ (user.has_branch ? user.has_branch.branch_name : '-') }}</td>
                                         <td>
                                             <span v-for="(role, index) in user.roles" :key="index" class="badge badge-primary shadow border-0 ms-2 mb-2">
                                                 {{ role.name }}

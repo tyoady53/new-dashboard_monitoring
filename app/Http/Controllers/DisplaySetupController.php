@@ -73,9 +73,15 @@ class DisplaySetupController extends Controller
 
             $insert = DisplaySetup::create($insert_arr);
 
-            foreach($request->charts as $chart) {
-                // dd($request->charts, $chart['sequence']);
+            $chart_arr = $request->charts;
+            if($request->stat_box) {
+                    array_push($chart_arr, ['sequence'      => count($chart_arr) + 1,
+                    'chartType'    => 'StatBox',
+                    'dataFrom'     => 'dash_visitation']
+                );
+            }
 
+            foreach($chart_arr as $chart) {
                 DisplaySetupDetail::create([
                     'display_id'    => $insert->id,
                     'sequence'      => $chart['sequence'],
@@ -106,8 +112,6 @@ class DisplaySetupController extends Controller
         DisplaySetupDetail::where('display_id', $data->id)->delete();
 
         foreach($chart_arr as $chart) {
-            // dd($chart);
-
             DisplaySetupDetail::create([
                 'display_id'    => $data->id,
                 'sequence'      => $chart['sequence'],
@@ -115,8 +119,6 @@ class DisplaySetupController extends Controller
                 'data_from'     => $chart['dataFrom']
             ]);
         }
-
-        // return redirect()->route('apps.index');
     }
 
     /**
