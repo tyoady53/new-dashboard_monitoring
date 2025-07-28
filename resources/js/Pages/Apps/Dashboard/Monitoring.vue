@@ -5,47 +5,51 @@
   <main class="c-main">
     <div class="container-fluid" v-if="hasAnyPermission(['dashboard.index'])">
       <div class="fade-in">
-        <div class="text-center">
+        <div class="text-center mb-2">
           <h4>Patient Monitoring {{ table_data.cust_branch }}</h4>
         </div>
 
         <div class="card border-0 rounded-3 shadow-border-top-purple p-3">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="mb-3">
-                        <label class="fw-bold">Customer <span
-                                style="color:red;">*</span></label>
-                        <select v-model="form.customer_id
-                            " class="form-select" @change="getBranch" :disabled="selected_cust != null">
-                            <option disabled value>
-                                Choose One
-                            </option>
-                            <option v-for="customer in master_customers" :key="customer"
-                                :value="customer.id">
-                                {{
-                                    customer.customer_name
-                                }}
-                            </option>
-                        </select>
+            <template v-if="selected_cust &&selected_branch">
+                <h3>{{ generateCustomerText(selected_cust,selected_branch) }}</h3>
+            </template>
+            <template v-else>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="fw-bold">Customer <span style="color:red;">*</span></label>
+                            <select v-model="form.customer_id
+                                " class="form-select" @change="getBranch" :disabled="selected_cust != null">
+                                <option disabled value>
+                                    Choose One
+                                </option>
+                                <option v-for="customer in master_customers" :key="customer"
+                                    :value="customer.id">
+                                    {{
+                                        customer.customer_name
+                                    }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="fw-bold">Branch <span style="color:red;">*</span></label>
+                            <select v-model="form.branch_id" class="form-select" @change="changeBranch" :disabled="selected_branch != null">
+                                <option disabled value>
+                                    Choose One
+                                </option>
+                                <option v-for="branch in filteredChain" :key="branch.id"
+                                    :value="branch.id">
+                                    {{
+                                        branch.branch_name
+                                    }}
+                                </option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="mb-3">
-                        <label class="fw-bold">Branch <span style="color:red;">*</span></label>
-                        <select v-model="form.branch_id" class="form-select" @change="changeBranch" :disabled="selected_branch != null">
-                            <option disabled value>
-                                Choose One
-                            </option>
-                            <option v-for="branch in filteredChain" :key="branch.id"
-                                :value="branch.id">
-                                {{
-                                    branch.branch_name
-                                }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+            </template>
         </div>
 
         <div class="card border-0 rounded-3 shadow-border-top-purple mt-4" v-if="form.customer_id && form.branch_id">
@@ -137,9 +141,10 @@ export default {
         }
         return filteredsubChains;
     },
-  },
 
-  mounted() {
+},
+
+mounted() {
     if(this.selected_cust) {
         this.form.customer_id = this.selected_cust;
     }
@@ -148,14 +153,31 @@ export default {
         this.get_latest_update();
         this.get_monitoring_data();
     }
-  },
+},
 
-  methods: {
+methods: {
     getBranch() {
         this.form.branch_id = null;
         if (!this.form.customer_id) {
             this.form.customer_id = -1;
         }
+    },
+
+    generateCustomerText(customerId,branch_id) {
+       const customer = this.master_customers.find(item => item.id === customerId);
+       const customerName = customer ? customer.customer_name : 'Customer Not found';
+       const branch = this.master_customer_branches.find(item => item.id === branch_id);
+       const branchName = branch ? branch.branch_name : 'Customer Not found';
+
+       let returnText = customerName + ' - ' + branchName;
+
+       console.log(customer);
+       console.log(customerName);
+       console.log(branch);
+       console.log(branchName);
+       console.log(returnText);
+
+       return returnText;
     },
 
     changeBranch() {

@@ -71,6 +71,9 @@ const chartOptions = computed(() => ({
   chart: {
     type: 'bar',
     stacked: false,
+    toolbar: {
+      show: false
+    }
   },
   plotOptions: {
     bar: {

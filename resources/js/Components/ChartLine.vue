@@ -74,6 +74,9 @@ const chartOptions = computed(() => ({
     type: 'line',
     zoom: {
       enabled: false
+    },
+    toolbar: {
+      show: false
     }
   },
   dataLabels: {
