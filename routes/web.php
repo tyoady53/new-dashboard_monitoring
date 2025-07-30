@@ -34,20 +34,17 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/editor', [DisplaySetupController::class, 'index'])->name('apps.editor');
     Route::post('/editor/post', [DisplaySetupController::class, 'store'])->name('apps.editor.store');
 
+
     Route::get('/get_data', [MonitoringController::class, 'get_data_monitoring'])->name('apps.get_data');
     Route::get('/get_dashboard', [MonitoringController::class, 'get_dashboard'])->name('apps.get_dashboard');
 
-    Route::prefix('user')->group(function (){
-        // Route::get('/', [UserController::class, 'index'])->name('apps.user.index');
-        // Route::get('/create', [UserController::class, 'create'])->name('apps.user.create');
+    Route::prefix('user')->group(function () {
         Route::get('/get_permissions', [UserController::class, 'get_permissions'])->name('apps.user.get_permissions');
         Route::get('/my_profile', [UserController::class, 'my_profile'])->name('apps.user.my_profile');
-        // Route::get('/{id}', [UserController::class, 'edit'])->name('apps.user.edit');
-        // Route::post('/', [UserController::class, 'store'])->name('apps.user.store');
-        // Route::post('/update/{id}', [UserController::class, 'update'])->name('apps.user.update');
+        Route::post('/update_interval', [UserController::class, 'update_interval'])->name('apps.user.update_interval');
     });
 
-    Route::prefix('role')->group(function (){
+    Route::prefix('role')->group(function () {
         Route::get('/', [RoleController::class, 'index'])->name('apps.role.index');
         Route::get('/create', [RoleController::class, 'create'])->name('apps.role.create');
         Route::get('/{id}', [RoleController::class, 'edit'])->name('apps.role.edit');
@@ -55,7 +52,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/update/{id}', [RoleController::class, 'update'])->name('apps.role.update');
     });
 
-    Route::prefix('permission')->group(function (){
+    Route::prefix('permission')->group(function () {
         Route::get('/', [PermissionController::class, 'index'])->name('apps.permission.index');
         Route::get('/create', [PermissionController::class, 'create'])->name('apps.permission.create');
         Route::get('/{id}', [PermissionController::class, 'edit'])->name('apps.permission.edit');
@@ -63,7 +60,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/update/{id}', [PermissionController::class, 'update'])->name('apps.permission.update');
     });
 
-    Route::prefix('customer')->group(function (){
+    Route::prefix('customer')->group(function () {
         Route::get('/', [CustomerController::class, 'index'])->name('apps.customer.index');
         Route::get('/create', [CustomerController::class, 'create'])->name('apps.customer.create');
         Route::get('/{id}', [CustomerController::class, 'edit'])->name('apps.customer.edit');

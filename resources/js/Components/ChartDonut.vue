@@ -58,7 +58,7 @@ const get_monitoring_data = () => {
         labels.value = data.labels;
         datas.value = data.data;
         total.value = data.total;
-        console.log('Labels:', typeof data.labels, data.labels);
+        // console.log('Labels:', typeof data.labels, data.labels);
 
       isLoading.value = false;
     })

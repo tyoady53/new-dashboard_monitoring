@@ -122,7 +122,7 @@
             const form = reactive({
                 name: props.user.name,
                 email: props.user.email,
-                username: props.user.username,
+                username: props.user.user_name,
                 password: '',
                 password_confirmation: '',
             });

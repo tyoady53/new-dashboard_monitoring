@@ -31,13 +31,13 @@ class MonitoringController extends Controller
     public function index()
     {
         $permissions = $this->get_permissions();
-        $auth = User::where('id',auth()->user()->id)->first();
+        $auth = User::where('id', auth()->user()->id)->first();
 
-        if(!$auth->customer_id) {
+        if (!$auth->customer_id) {
             $selected_cust = null;
             $selected_branch = null;
         } else {
-            if(!$auth->customer_branch) {
+            if (!$auth->customer_branch) {
                 $selected_cust = $auth->customer_id;
                 $selected_branch = null;
             } else {
@@ -64,19 +64,19 @@ class MonitoringController extends Controller
     public function create()
     {
         $arr_type = ['cito', 'noncito'];
-        for($i=0;$i<(int)request()['length']; $i++){
+        for ($i = 0; $i < (int)request()['length']; $i++) {
             $array[$i] = [
                 "dttm"          => Carbon::now()->format("Y-m-d H:i:s"),
                 "cust_name"     => request()['cust_name'],
                 "cust_branch"   => request()['cust_branch'],
-                "reg_no"        => Carbon::now()->format("ym").str_pad($i + 1,4,"0",STR_PAD_LEFT),
-                "type"          => $arr_type[rand(0,1)],
-                "sc" => rand(1,4),
-                "ps" => rand(1,4),
-                "rs" => rand(1,4),
-                "vr" => rand(1,4),
-                "au" => rand(1,4),
-                "kr" => rand(0,1)
+                "reg_no"        => Carbon::now()->format("ym") . str_pad($i + 1, 4, "0", STR_PAD_LEFT),
+                "type"          => $arr_type[rand(0, 1)],
+                "sc" => rand(1, 4),
+                "ps" => rand(1, 4),
+                "rs" => rand(1, 4),
+                "vr" => rand(1, 4),
+                "au" => rand(1, 4),
+                "kr" => rand(0, 1)
             ];
         };
 
@@ -159,9 +159,9 @@ class MonitoringController extends Controller
 
     public function get_data($email)
     {
-        $parameters = [1,2,3,5];
-        $user = User::with('has_company','has_branch')->where('email',$email)->first();
-        $array = Dashboard::where('cust_name',$user->has_company->customer_id)->where('cust_branch',$user->has_branch->outlet_id)->orderBy('reg_no')->get();
+        $parameters = [1, 2, 3, 5];
+        $user = User::with('has_company', 'has_branch')->where('email', $email)->first();
+        $array = Dashboard::where('cust_name', $user->has_company->customer_id)->where('cust_branch', $user->has_branch->outlet_id)->orderBy('reg_no')->get();
         $data = array();
         $idx_cito_sc = 0;
         $idx_non_sc = 0;
@@ -178,22 +178,22 @@ class MonitoringController extends Controller
 
         $data['cust_name'] = $user->has_company->customer_name;
         $data['cust_branch'] = $user->has_branch->branch_name;
-        if(count($array)){
+        if (count($array)) {
             $data['last_update'] = $array[0]->dttm;
         } else {
             $data['last_update'] = null;
         }
 
-        foreach($array as $index=>$loop) {
-            if($loop->cust_name) {
+        foreach ($array as $index => $loop) {
+            if ($loop->cust_name) {
                 // Speciment Collection
                 $spe_col = null;
-                if(in_array($loop['sc'], $parameters)){
-                    $spe_col = ['reg_no' => str_pad($loop['reg_no'],4,"0",STR_PAD_LEFT), 'type' => $loop['sc']];
-                    if(strtoupper($loop['type']) == 'CITO') {
-                        if(count($data) > 0) {
+                if (in_array($loop['sc'], $parameters)) {
+                    $spe_col = ['reg_no' => str_pad($loop['reg_no'], 4, "0", STR_PAD_LEFT), 'type' => $loop['sc']];
+                    if (strtoupper($loop['type']) == 'CITO') {
+                        if (count($data) > 0) {
                             $data['sc'][$idx_cito_sc]['cito'] = $spe_col;
-                            if($idx_cito_sc >= $idx_non_sc) {
+                            if ($idx_cito_sc >= $idx_non_sc) {
                                 $data['sc'][$idx_cito_sc]['noncito'] = null;
                             }
                         } else {
@@ -202,8 +202,8 @@ class MonitoringController extends Controller
                         }
                         $idx_cito_sc += 1;
                     } else {
-                        if(count($data) > 0) {
-                            if($idx_cito_sc <= $idx_non_sc) {
+                        if (count($data) > 0) {
+                            if ($idx_cito_sc <= $idx_non_sc) {
                                 $data['sc'][$idx_non_sc]['cito'] = null;
                             }
                             $data['sc'][$idx_non_sc]['noncito'] = $spe_col;
@@ -217,12 +217,12 @@ class MonitoringController extends Controller
 
                 // Process Sample
                 $pro_sam = null;
-                if(in_array($loop['ps'], $parameters)){
-                    $pro_sam = ['reg_no' => str_pad($loop['reg_no'],4,"0",STR_PAD_LEFT), 'type' => $loop['ps']];
-                    if(strtoupper($loop['type']) == 'CITO') {
-                        if(count($data) > 0) {
+                if (in_array($loop['ps'], $parameters)) {
+                    $pro_sam = ['reg_no' => str_pad($loop['reg_no'], 4, "0", STR_PAD_LEFT), 'type' => $loop['ps']];
+                    if (strtoupper($loop['type']) == 'CITO') {
+                        if (count($data) > 0) {
                             $data['ps'][$idx_cito_ps]['cito'] = $pro_sam;
-                            if($idx_cito_ps >= $idx_non_ps) {
+                            if ($idx_cito_ps >= $idx_non_ps) {
                                 $data['ps'][$idx_cito_ps]['noncito'] = null;
                             }
                         } else {
@@ -231,8 +231,8 @@ class MonitoringController extends Controller
                         }
                         $idx_cito_ps += 1;
                     } else {
-                        if(count($data) > 0) {
-                            if($idx_cito_ps <= $idx_non_ps) {
+                        if (count($data) > 0) {
+                            if ($idx_cito_ps <= $idx_non_ps) {
                                 $data['ps'][$idx_non_ps]['cito'] = null;
                             }
                             $data['ps'][$idx_non_ps]['noncito'] = $pro_sam;
@@ -246,12 +246,12 @@ class MonitoringController extends Controller
 
                 // Result
                 $result = null;
-                if(in_array($loop['rs'], $parameters)){
-                    $result = ['reg_no' => str_pad($loop['reg_no'],4,"0",STR_PAD_LEFT), 'type' => $loop['rs']];
-                    if(strtoupper($loop['type']) == 'CITO') {
-                        if(count($data) > 0) {
+                if (in_array($loop['rs'], $parameters)) {
+                    $result = ['reg_no' => str_pad($loop['reg_no'], 4, "0", STR_PAD_LEFT), 'type' => $loop['rs']];
+                    if (strtoupper($loop['type']) == 'CITO') {
+                        if (count($data) > 0) {
                             $data['rs'][$idx_cito_rs]['cito'] = $result;
-                            if($idx_cito_rs >= $idx_non_rs) {
+                            if ($idx_cito_rs >= $idx_non_rs) {
                                 $data['rs'][$idx_cito_rs]['noncito'] = null;
                             }
                         } else {
@@ -260,8 +260,8 @@ class MonitoringController extends Controller
                         }
                         $idx_cito_rs += 1;
                     } else {
-                        if(count($data) > 0) {
-                            if($idx_cito_rs <= $idx_non_rs) {
+                        if (count($data) > 0) {
+                            if ($idx_cito_rs <= $idx_non_rs) {
                                 $data['rs'][$idx_non_rs]['cito'] = null;
                             }
                             $data['rs'][$idx_non_rs]['noncito'] = $result;
@@ -275,12 +275,12 @@ class MonitoringController extends Controller
 
                 // Verification
                 $verif = null;
-                if(in_array($loop['vr'], $parameters)){
-                    $verif = ['reg_no' => str_pad($loop['reg_no'],4,"0",STR_PAD_LEFT), 'type' => $loop['vr']];
-                    if(strtoupper($loop['type']) == 'CITO') {
-                        if(count($data) > 0) {
+                if (in_array($loop['vr'], $parameters)) {
+                    $verif = ['reg_no' => str_pad($loop['reg_no'], 4, "0", STR_PAD_LEFT), 'type' => $loop['vr']];
+                    if (strtoupper($loop['type']) == 'CITO') {
+                        if (count($data) > 0) {
                             $data['vr'][$idx_cito_vr]['cito'] = $verif;
-                            if($idx_cito_vr >= $idx_non_vr) {
+                            if ($idx_cito_vr >= $idx_non_vr) {
                                 $data['vr'][$idx_cito_vr]['noncito'] = null;
                             }
                         } else {
@@ -289,8 +289,8 @@ class MonitoringController extends Controller
                         }
                         $idx_cito_vr += 1;
                     } else {
-                        if(count($data) > 0) {
-                            if($idx_cito_vr <= $idx_non_vr) {
+                        if (count($data) > 0) {
+                            if ($idx_cito_vr <= $idx_non_vr) {
                                 $data['vr'][$idx_non_vr]['cito'] = null;
                             }
                             $data['vr'][$idx_non_vr]['noncito'] = $verif;
@@ -304,12 +304,12 @@ class MonitoringController extends Controller
 
                 // Authorizazion
                 $author = null;
-                if(in_array($loop['au'], $parameters)){
-                    $author = ['reg_no' => str_pad($loop['reg_no'],4,"0",STR_PAD_LEFT), 'type' => $loop['au']];
-                    if(strtoupper($loop['type']) == 'CITO') {
-                        if(count($data) > 0) {
+                if (in_array($loop['au'], $parameters)) {
+                    $author = ['reg_no' => str_pad($loop['reg_no'], 4, "0", STR_PAD_LEFT), 'type' => $loop['au']];
+                    if (strtoupper($loop['type']) == 'CITO') {
+                        if (count($data) > 0) {
                             $data['au'][$idx_cito_au]['cito'] = $author;
-                            if($idx_cito_au >= $idx_non_au) {
+                            if ($idx_cito_au >= $idx_non_au) {
                                 $data['au'][$idx_cito_au]['noncito'] = null;
                             }
                         } else {
@@ -318,8 +318,8 @@ class MonitoringController extends Controller
                         }
                         $idx_cito_au += 1;
                     } else {
-                        if(count($data) > 0) {
-                            if($idx_cito_au <= $idx_non_au) {
+                        if (count($data) > 0) {
+                            if ($idx_cito_au <= $idx_non_au) {
                                 $data['au'][$idx_non_au]['cito'] = null;
                             }
                             $data['au'][$idx_non_au]['noncito'] = $author;
@@ -333,15 +333,15 @@ class MonitoringController extends Controller
 
                 // Kritis
                 $kritis = null;
-                $kritis = ['reg_no' => str_pad($loop['reg_no'],4,"0",STR_PAD_LEFT), 'type' => $loop['kr']];
-                if($loop['kr'] == '1') {
+                $kritis = ['reg_no' => str_pad($loop['reg_no'], 4, "0", STR_PAD_LEFT), 'type' => $loop['kr']];
+                if ($loop['kr'] == '1') {
                     $data['kr'][$idx_kritis] = $kritis;
                     $idx_kritis += 1;
                 }
             }
         }
 
-        $data['tat'] = DashMonitoringTat::where('cust_name',$user->has_company->customer_id)->where('cust_branch',$user->has_branch->outlet_id)->get();
+        $data['tat'] = DashMonitoringTat::where('cust_name', $user->has_company->customer_id)->where('cust_branch', $user->has_branch->outlet_id)->get();
 
         response()->json([
             'status'    => true,
@@ -366,7 +366,8 @@ class MonitoringController extends Controller
         return;
     }
 
-    public function get_setup(Request $request) {
+    public function get_setup(Request $request)
+    {
         $return_data = array();
         $statBox = 0;
         $data = DisplaySetup::where('customer_id', $request->cust_id)->where('branch_id', $request->cust_branch)->with(['details' => function ($query) {
@@ -374,11 +375,11 @@ class MonitoringController extends Controller
         }])->first();
 
         $hasStatBox = DisplaySetupDetail::where('display_id', optional($data)->id)
-        ->where('chart_show', 'StatBox')
-        ->exists();
+            ->where('chart_show', 'StatBox')
+            ->exists();
 
         if ($data) {
-            $return_data['data'] = $data->makeHidden(['id','details']);
+            $return_data['data'] = $data->makeHidden(['id', 'details']);
 
             $details = $data->details->map(function ($item) {
                 return [
@@ -388,7 +389,7 @@ class MonitoringController extends Controller
                 ];
             });
 
-            if($hasStatBox) {
+            if ($hasStatBox) {
                 $statBox = 1;
             }
             $return_data['details'] = $details;
@@ -400,30 +401,32 @@ class MonitoringController extends Controller
         dd($data);
     }
 
-    public function get_last_update(Request $request) {
+    public function get_last_update(Request $request)
+    {
         $formatted = null;
         $tables = TableSetting::get();
         $cust = Customer::where('id', $request->cust_id)->first();
         $branch = CustomerBranch::where('id', $request->cust_branch)->first();
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             $dttm[] = DB::table($table->table_name)
                 ->select('dttm')
-                ->where('cust_name',$cust->customer_name)
-                ->where('cust_branch',$branch->branch_name)
+                ->where('cust_name', $cust->customer_name)
+                ->where('cust_branch', $branch->branch_name)
                 ->orderBy('dttm', 'desc')
                 ->first();
         }
 
         $latest = collect($dttm)->max('dttm');
 
-        if($latest) {
+        if ($latest) {
             $formatted = Carbon::parse($latest)->format('d M Y/H:i');
         }
 
         return $formatted;
     }
 
-    public function get_dashboard(Request $request) {
+    public function get_dashboard(Request $request)
+    {
         $data = DisplaySetup::where('customer_id', $request->cust_id)->where('branch_id', $request->cust_branch)->with('details.setting')->first();
 
         return response()->json([
@@ -433,7 +436,8 @@ class MonitoringController extends Controller
         ]);
     }
 
-    public function get_data_monitoring(Request $request) {
+    public function get_data_monitoring(Request $request)
+    {
         $auth = auth()->user();
         $return_data = [];
 
@@ -442,31 +446,31 @@ class MonitoringController extends Controller
 
         switch ($request->link) {
             case 'dash_test_group':
-                $return_data = $this->get_stat_test_group($cust,$branch);
+                $return_data = $this->get_stat_test_group($cust, $branch);
                 break;
 
             case 'dash_total_kritis':
-                $return_data = $this->get_stat_nilai_kritis($cust,$branch);
+                $return_data = $this->get_stat_nilai_kritis($cust, $branch);
                 break;
 
             case 'dash_visit_clasification':
-                $return_data = $this->get_stat_asal_pasien($cust,$branch);
+                $return_data = $this->get_stat_asal_pasien($cust, $branch);
                 break;
 
             case 'dash_visit_hour':
-                $return_data = $this->get_kunj_perjam($cust,$branch);
+                $return_data = $this->get_kunj_perjam($cust, $branch);
                 break;
 
             case 'dash_nilai_kritis':
-                $return_data = $this->get_nilai_ktitis($cust,$branch);
+                $return_data = $this->get_nilai_ktitis($cust, $branch);
                 break;
 
             case 'dash_tat':
-                $return_data = $this->get_monitoring_tat($cust,$branch);
+                $return_data = $this->get_monitoring_tat($cust, $branch);
                 break;
 
             default:
-                $return_data = $this->get_statbox($cust,$branch);
+                $return_data = $this->get_statbox($cust, $branch);
                 break;
         }
 
@@ -474,12 +478,13 @@ class MonitoringController extends Controller
     }
 
     // New Dashboard
-    function get_stat_test_group($cust,$branch) {
+    function get_stat_test_group($cust, $branch)
+    {
         // $cust = Customer::where('id', $request->cust_id)->first();
         // $branch = CustomerBranch::where('id', $request->cust_branch)->first();
-        $labels = DashTestGroup::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->distinct()->pluck('test_group')->toArray();
-        $arr_selesai = DashTestGroup::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->pluck('total')->toArray();
-        $arr_belum_selesai = DashTestGroup::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->pluck('total_not_finish')->toArray();
+        $labels = DashTestGroup::where('cust_name', $cust->customer_name)->where('cust_branch', $branch->branch_name)->distinct()->pluck('test_group')->toArray();
+        $arr_selesai = DashTestGroup::where('cust_name', $cust->customer_name)->where('cust_branch', $branch->branch_name)->pluck('total')->toArray();
+        $arr_belum_selesai = DashTestGroup::where('cust_name', $cust->customer_name)->where('cust_branch', $branch->branch_name)->pluck('total_not_finish')->toArray();
         $return_array = array();
 
         $return_data = [
@@ -500,15 +505,16 @@ class MonitoringController extends Controller
         return $return_array;
     }
 
-    function get_stat_nilai_kritis($cust,$branch) {
+    function get_stat_nilai_kritis($cust, $branch)
+    {
         // $cust = Customer::where('id', $request->cust_id)->first();
         // $branch = CustomerBranch::where('id', $request->cust_branch)->first();
-        $datas = DashTotalKritis::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('type', 'ASC')->get();
+        $datas = DashTotalKritis::where('cust_name', $cust->customer_name)->where('cust_branch', $branch->branch_name)->orderBy('type', 'ASC')->get();
         // dd($datas);
         $return_array = array();
 
         $total = 0;
-        foreach($datas as $data) {
+        foreach ($datas as $data) {
             // $return_array['data'] = [$data->lab_no];
             $return_array['data'][] = $data->total;
             $total += $data->total;
@@ -521,15 +527,16 @@ class MonitoringController extends Controller
         return $return_array;
     }
 
-    function get_stat_asal_pasien($cust,$branch) {
+    function get_stat_asal_pasien($cust, $branch)
+    {
         // $cust = Customer::where('id', $request->cust_id)->first();
         // $branch = CustomerBranch::where('id', $request->cust_branch)->first();
-        $datas = DashVisitClasification::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('patient_type','DESC')->get();
-        $labels = DashVisitClasification::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->distinct()->orderBy('patient_type','DESC')->pluck('patient_type')->toArray();
+        $datas = DashVisitClasification::where('cust_name', $cust->customer_name)->where('cust_branch', $branch->branch_name)->orderBy('patient_type', 'DESC')->get();
+        $labels = DashVisitClasification::where('cust_name', $cust->customer_name)->where('cust_branch', $branch->branch_name)->distinct()->orderBy('patient_type', 'DESC')->pluck('patient_type')->toArray();
         $return_array = array();
 
         $total = 0;
-        foreach($datas as $data) {
+        foreach ($datas as $data) {
             // $return_array['data'] = [$data->lab_no];
             $return_array['data'][] = $data->total;
             $total += $data->total;
@@ -542,11 +549,12 @@ class MonitoringController extends Controller
         return $return_array;
     }
 
-    function get_kunj_perjam($cust,$branch) {
+    function get_kunj_perjam($cust, $branch)
+    {
         // $cust = Customer::where('id', $request->cust_id)->first();
         // $branch = CustomerBranch::where('id', $request->cust_branch)->first();
-        $labels = DashVisitHour::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('hours','ASC')->pluck('hours')->toArray();
-        $datas = DashVisitHour::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('hours','ASC')->pluck('total')->toArray();
+        $labels = DashVisitHour::where('cust_name', $cust->customer_name)->where('cust_branch', $branch->branch_name)->orderBy('hours', 'ASC')->pluck('hours')->toArray();
+        $datas = DashVisitHour::where('cust_name', $cust->customer_name)->where('cust_branch', $branch->branch_name)->orderBy('hours', 'ASC')->pluck('total')->toArray();
         $return_array = array();
 
         $return_data = [
@@ -561,15 +569,15 @@ class MonitoringController extends Controller
         $return_array['title'] = 'STATISTIK KUNJUNGAN PERJAM';
 
         return $return_array;
-
     }
 
-    function get_monitoring_tat($cust,$branch) {
+    function get_monitoring_tat($cust, $branch)
+    {
         // $cust = Customer::where('id', $request->cust_id)->first();
         // $branch = CustomerBranch::where('id', $request->cust_branch)->first();
-        $labels = DashTat::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->distinct()->orderBy('tat_type', 'DESC')->pluck('tat_type')->toArray();
-        $arr_selesai = DashTat::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('tat_type', 'DESC')->pluck('total')->toArray();
-        $arr_belum_selesai = DashTat::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->orderBy('tat_type', 'DESC')->pluck('total_not_finish')->toArray();
+        $labels = DashTat::where('cust_name', $cust->customer_name)->where('cust_branch', $branch->branch_name)->distinct()->orderBy('tat_type', 'DESC')->pluck('tat_type')->toArray();
+        $arr_selesai = DashTat::where('cust_name', $cust->customer_name)->where('cust_branch', $branch->branch_name)->orderBy('tat_type', 'DESC')->pluck('total')->toArray();
+        $arr_belum_selesai = DashTat::where('cust_name', $cust->customer_name)->where('cust_branch', $branch->branch_name)->orderBy('tat_type', 'DESC')->pluck('total_not_finish')->toArray();
         $return_array = array();
 
         $return_data = [
@@ -590,12 +598,13 @@ class MonitoringController extends Controller
         return $return_array;
     }
 
-    function get_nilai_ktitis($cust,$branch) {
+    function get_nilai_ktitis($cust, $branch)
+    {
         // $cust = Customer::where('id', $request->cust_id)->first();
         // $branch = CustomerBranch::where('id', $request->cust_branch)->first();
-        $datas = DashNilaiKritis::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->get();
+        $datas = DashNilaiKritis::where('cust_name', $cust->customer_name)->where('cust_branch', $branch->branch_name)->get();
         $return_array = array();
-        foreach($datas as $data) {
+        foreach ($datas as $data) {
             $return_array['data'][] = [
                 'lab_no'        => $data->lab_no,
                 'patient_name'  => $data->patient_name,
@@ -608,13 +617,14 @@ class MonitoringController extends Controller
         return $return_array;
     }
 
-    function get_statbox($cust,$branch) {
+    function get_statbox($cust, $branch)
+    {
         // $cust = Customer::where('id', $request->cust_id)->first();
         // $branch = CustomerBranch::where('id', $request->cust_branch)->first();
-        $data = DashVisitation::where('cust_name',$cust->customer_name)->where('cust_branch',$branch->branch_name)->first();
+        $data = DashVisitation::where('cust_name', $cust->customer_name)->where('cust_branch', $branch->branch_name)->first();
         $labels = ['KUNJUNGAN', 'SAMPEL BELUM AMBIL', 'SAMPEL TERIMA', 'PEMERIKSAAN BELUM SELESAI', 'PEMERIKSAAN SELESAI', 'TOTAL PEMERIKSAAN'];
         $return_array = array();
-        foreach($labels as $label) {
+        foreach ($labels as $label) {
             $total = 0;
             switch ($label) {
                 case 'KUNJUNGAN':
@@ -659,7 +669,7 @@ class MonitoringController extends Controller
             array_push($array_permission, $permission->name);
         }
 
-        if(count($array_permission)) {
+        if (count($array_permission)) {
             $return['status']   = 200;
             $return['data']     = $array_permission;
         } else {

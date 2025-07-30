@@ -1,40 +1,33 @@
 import { createApp, h } from 'vue'
-
 import { createInertiaApp } from '@inertiajs/inertia-vue3'
-
 import { InertiaProgress } from '@inertiajs/progress'
+import VueApexCharts from 'vue3-apexcharts'
 
-import VueApexCharts from 'vue3-apexcharts';
+import Helper from './Helper/Helper' // Adjust the path if needed
 
 createInertiaApp({
-
   resolve: name => require(`./Pages/${name}`),
   setup({ el, App, props, plugin }) {
-    createApp({ render: () => h(App, props) })
-      //set mixins
-      .mixin({
-        methods: {
+    const app = createApp({ render: () => h(App, props) })
 
-          //method "hasAnyPermission"
-          hasAnyPermission: function (permissions) {
+    // Add global methods
+    app.mixin({
+      methods: {
+        hasAnyPermission(permissions) {
+          const allPermissions = this.$page.props.auth.permissions || {};
+          return permissions.some(item => allPermissions[item]);
+        }
+      }
+    })
 
-            //get permissions from props
-            let allPermissions = this.$page.props.auth.permissions;
+    // Register global properties
+    app.config.globalProperties.$helper = Helper
 
-            let hasPermission = false;
-            permissions.forEach(function (item) {
-              if (allPermissions[item]) hasPermission = true;
-            });
-
-            return hasPermission;
-          }
-
-        },
-      })
+    app
       .use(plugin)
       .use(VueApexCharts)
       .mount(el)
   },
-});
+})
 
 InertiaProgress.init({})

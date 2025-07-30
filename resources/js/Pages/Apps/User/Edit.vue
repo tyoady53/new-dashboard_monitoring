@@ -171,7 +171,7 @@
             const form = reactive({
                 name: props.user.name,
                 email: props.user.email,
-                username: props.user.username,
+                username: props.user.user_name,
                 company : props.user.customer_id,
                 branch : props.user.customer_branch,
                 password: '',
@@ -181,12 +181,15 @@
 
             const submit = () => {
 
-                Inertia.post('/user/update/'+props.user.id, {
+                Inertia.put('/user/'+props.user.id, {
                     name: form.name,
                     email: form.email,
                     password: form.password,
+                    user_name: form.username,
                     roles: form.roles,
                     password_confirmation: form.password_confirmation,
+                    customer_id: form.company,
+                    customer_branch: form.branch
                 }, {
                     onSuccess: () => {
                         Swal.fire({

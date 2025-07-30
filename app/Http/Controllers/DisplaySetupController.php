@@ -9,6 +9,7 @@ use App\Models\DisplaySetupDetail;
 use App\Models\TableSetting;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class DisplaySetupController extends Controller
@@ -18,14 +19,19 @@ class DisplaySetupController extends Controller
      */
     public function index()
     {
-        $tables = TableSetting::where('display_type', '!=', 'StatBox')->get();
-        $auth = User::where('id',auth()->user()->id)->first();
+        $user = Auth::user();
+        if (!$user->hasPermissionTo('display_charts.index')) {
+            return Inertia::render('Forbidden403', []);
+        }
 
-        if(!$auth->customer_id) {
+        $tables = TableSetting::where('display_type', '!=', 'StatBox')->get();
+        $auth = User::where('id', auth()->user()->id)->first();
+
+        if (!$auth->customer_id) {
             $selected_cust = null;
             $selected_branch = null;
         } else {
-            if(!$auth->customer_branch) {
+            if (!$auth->customer_branch) {
                 $selected_cust = $auth->customer_id;
                 $selected_branch = null;
             } else {
@@ -59,10 +65,10 @@ class DisplaySetupController extends Controller
      */
     public function store(Request $request)
     {
-        $data = DisplaySetup::where('customer_id',$request->customer_id)->where('branch_id',$request->branch_id)->first();
+        $data = DisplaySetup::where('customer_id', $request->customer_id)->where('branch_id', $request->branch_id)->first();
 
-        if($data) {
-            $this->update_data($request,$data);
+        if ($data) {
+            $this->update_data($request, $data);
         } else {
             $insert_arr = [
                 'customer_id'   => $request->customer_id,
@@ -74,14 +80,18 @@ class DisplaySetupController extends Controller
             $insert = DisplaySetup::create($insert_arr);
 
             $chart_arr = $request->charts;
-            if($request->stat_box) {
-                    array_push($chart_arr, ['sequence'      => count($chart_arr) + 1,
-                    'chartType'    => 'StatBox',
-                    'dataFrom'     => 'dash_visitation']
+            if ($request->stat_box) {
+                array_push(
+                    $chart_arr,
+                    [
+                        'sequence'      => count($chart_arr) + 1,
+                        'chartType'    => 'StatBox',
+                        'dataFrom'     => 'dash_visitation'
+                    ]
                 );
             }
 
-            foreach($chart_arr as $chart) {
+            foreach ($chart_arr as $chart) {
                 DisplaySetupDetail::create([
                     'display_id'    => $insert->id,
                     'sequence'      => $chart['sequence'],
@@ -89,29 +99,33 @@ class DisplaySetupController extends Controller
                     'data_from'     => $chart['dataFrom']
                 ]);
             }
-
         }
 
         return redirect()->route('apps.index');
     }
 
-    function update_data($request,$data) {
+    function update_data($request, $data)
+    {
         $chart_arr = $request->charts;
         $data->update([
             'column_count'  => $request->columns,
             'edited_by'     => auth()->user()->id,
         ]);
 
-        if($request->stat_box) {
-                array_push($chart_arr, ['sequence'      => count($chart_arr) + 1,
-                'chartType'    => 'StatBox',
-                'dataFrom'     => 'dash_visitation']
+        if ($request->stat_box) {
+            array_push(
+                $chart_arr,
+                [
+                    'sequence'      => count($chart_arr) + 1,
+                    'chartType'    => 'StatBox',
+                    'dataFrom'     => 'dash_visitation'
+                ]
             );
         }
 
         DisplaySetupDetail::where('display_id', $data->id)->delete();
 
-        foreach($chart_arr as $chart) {
+        foreach ($chart_arr as $chart) {
             DisplaySetupDetail::create([
                 'display_id'    => $data->id,
                 'sequence'      => $chart['sequence'],

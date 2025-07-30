@@ -90,6 +90,39 @@
         </div>
       </div>
     </div>
+
+    <!-- The Modal Refresh Rate -->
+    <div class="modal" id="intervalModal" ref="intervalModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Set Refresh Interval</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form @submit.prevent="submitInterval">
+                        <div class="mb-3">
+                            <label class="fw-bold">Refresh Interval ( In Minutes)</label>
+                            <input class="form-control" v-model="refreshRate" type="number" min="1" />
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary shadow-sm rounded-sm" type="submit" data-bs-dismiss="modal">
+                                Save
+                            </button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <!-- Modal footer -->
+            </div>
+        </div>
+    </div>
+    <!-- End of Modal Refresh Rate -->
+
   </main>
 </template>
 
@@ -98,7 +131,7 @@ import { onMounted, ref, reactive, onBeforeUnmount } from 'vue';
 import { Head } from '@inertiajs/inertia-vue3';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-
+import { Inertia } from '@inertiajs/inertia';
 import LayoutApp from '../../../Layouts/App.vue';
 import ChartBarGroup from '../../../Components/ChartBarGroup.vue';
 import ChartDonut from '../../../Components/ChartDonut.vue';
@@ -106,195 +139,208 @@ import ChartLine from '../../../Components/ChartLine.vue';
 import PatientTable from '../../../Components/PatientTable.vue';
 import StatBox from '../../../Components/StatBox.vue';
 import ChartBarGroupHorizontal from '../../../Components/ChartBarGroupHorizontal.vue';
-
+import Helper from '../../../Helper/Helper';
 export default {
-  layout: LayoutApp,
+    layout: LayoutApp,
 
-  components: {
-    Head,
-    ChartBarGroup,
-    ChartDonut,
-    ChartLine,
-    PatientTable,
-    StatBox,
-    ChartBarGroupHorizontal
-  },
-
-  props: {
-    auth: Object,
-    permissions: Array,
-    selected_cust: Number,
-    selected_branch: Number,
-    master_customers: Array,
-    master_customer_branches: Array,
-  },
-
-  computed: {
-    filteredChain() {
-        // this.form.branch_id.html += 'required';
-        let filteredsubChains = [];
-        for (let i = 0; i < this.master_customer_branches.length; i++) {
-            let structures = this.master_customer_branches[i];
-            if (structures.customer_id == this.form.customer_id) {
-                filteredsubChains.push(structures);
-            }
-        }
-        return filteredsubChains;
+    components: {
+        Head,
+        ChartBarGroup,
+        ChartDonut,
+        ChartLine,
+        PatientTable,
+        StatBox,
+        ChartBarGroupHorizontal
     },
 
-},
+    props: {
+        auth: Object,
+        permissions: Array,
+        selected_cust: Number,
+        selected_branch: Number,
+        master_customers: Array,
+        master_customer_branches: Array,
+    },
+    data: () => ({
+        timeCount: 0,
+        data_interval: "",
+        refreshRate: 0,
+    }),
 
-mounted() {
-    if(this.selected_cust) {
-        this.form.customer_id = this.selected_cust;
-    }
-    if(this.selected_branch) {
-        this.form.branch_id = this.selected_branch;
+    computed: {
+        filteredChain() {
+            let filteredsubChains = [];
+            for (let i = 0; i < this.master_customer_branches.length; i++) {
+                let structures = this.master_customer_branches[i];
+                if (structures.customer_id == this.form.customer_id) {
+                    filteredsubChains.push(structures);
+                }
+            }
+            return filteredsubChains;
+        },
+
+    },
+
+    created() {
+        if(this.selected_cust) {
+            this.form.customer_id = this.selected_cust;
+        }
+        if(this.selected_branch) {
+            this.form.branch_id = this.selected_branch;
+        }
+        this.refreshRate =  this.$page.props.auth.user.interval;
         this.get_latest_update();
         this.get_monitoring_data();
-    }
-},
+        this.data_interval = setInterval(() => {
+            this.checkTime();
+            this.time = Intl.DateTimeFormat(navigator.language, {
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric",
+                hourCycle: "h23", // 24-hour format
+            }).format();
+        }, 1000);
+    },
 
-methods: {
-    getBranch() {
-        this.form.branch_id = null;
-        if (!this.form.customer_id) {
-            this.form.customer_id = -1;
+    methods: {
+        checkTime() {
+            if (this.refreshRate > 0) {
+                if (Math.floor(Date.now() / 1000) % 60 == 0) {
+                    this.timeCount += 1;
+                }
+                if (this.timeCount == this.refreshRate) {
+                    this.get_latest_update();
+                    this.get_monitoring_data();
+                }
+            }
+        },
+
+        getBranch() {
+            this.form.branch_id = null;
+            if (!this.form.customer_id) {
+                this.form.customer_id = -1;
+            }
+        },
+
+        generateCustomerText(customerId,branch_id) {
+            const customer = this.master_customers.find(item => item.id === customerId);
+            const customerName = customer ? customer.customer_name : 'Customer Not found';
+            const branch = this.master_customer_branches.find(item => item.id === branch_id);
+            const branchName = branch ? branch.branch_name : 'Customer Not found';
+
+            let returnText = customerName + ' - ' + branchName;
+
+            return returnText;
+        },
+
+        changeBranch() {
+            const temp =  this.form.branch_id;
+            this.form.branch_id = null;
+            setTimeout(() => {
+                this.form.branch_id = temp;
+                this.get_latest_update();
+                this.get_monitoring_data();
+            }, 100);
+        },
+
+        get_latest_update() {
+            this.last_update = '';
+            axios.get(`/api/dashboard/get_last_update/`,{
+                params: {
+                    cust_id: this.form.customer_id,
+                    cust_branch: this.form.branch_id
+                }
+            })
+                .then(res => {
+                    const data = res.data;
+                    this.last_update = data;
+                })
+                .catch(() => {
+                    if(this.branch_id) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Fetch Failed',
+                            text: 'Unable to get data.',
+                            timer: 2000
+                        });
+                    }
+            });
+        },
+
+        get_monitoring_data() {
+            this.dashboards = [];
+            this.timeCount = 0;
+            axios.get(`/get_dashboard`,{
+                params: {
+                    cust_id: this.form.customer_id,
+                    cust_branch: this.form.branch_id
+                }
+            })
+                .then(res => {
+                    const data = res.data.data;
+                    this.dashboards = data;
+                })
+                .catch(() => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Fetch Failed',
+                    text: 'Unable to get data.',
+                    timer: 2000
+                });
+            });
+        },
+    },
+
+    setup(props) {
+        const dashboards = ref([]);
+        const table_data = ref([]);
+        const last_update = ref('');
+        const time = ref('');
+        const timeCount = ref(0);
+        const isLoading = ref(false);
+        const form = reactive({
+            customer_id : '',
+            branch_id : ''
+        })
+
+        const formatCompat = (dates) => {
+        if (!dates) return '-';
+        const d = new Date(dates);
+        return `${d.getDate().toString().padStart(2, '0')}-${d.toLocaleString('default', { month: 'short' })}-${d.getFullYear()}/${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+        };
+
+        const refreshRate = ref();
+        const submitInterval = () => {
+            Helper.setInterval(refreshRate.value);
+            Inertia.post('/user/update_interval', {
+                refresh_rate: refreshRate.value,
+            }, {
+                onSuccess: () => {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'User saved successfully.',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                },onError: () => {
+                    Swal.fire('Error!', 'Failed to save interval.', 'error');
+                }
+            });
         }
+
+        return {
+            submitInterval,
+            refreshRate,
+            table_data,
+            last_update,
+            time,
+            isLoading,
+            formatCompat,
+            form,
+            dashboards,
+        };
     },
-
-    generateCustomerText(customerId,branch_id) {
-       const customer = this.master_customers.find(item => item.id === customerId);
-       const customerName = customer ? customer.customer_name : 'Customer Not found';
-       const branch = this.master_customer_branches.find(item => item.id === branch_id);
-       const branchName = branch ? branch.branch_name : 'Customer Not found';
-
-       let returnText = customerName + ' - ' + branchName;
-
-       console.log(customer);
-       console.log(customerName);
-       console.log(branch);
-       console.log(branchName);
-       console.log(returnText);
-
-       return returnText;
-    },
-
-    changeBranch() {
-        const temp =  this.form.branch_id;
-        this.form.branch_id = null;
-        setTimeout(() => {
-            this.form.branch_id = temp;
-            this.get_latest_update();
-            this.get_monitoring_data();
-        }, 100);
-    },
-
-    get_latest_update() {
-        this.last_update = '';
-        axios.get(`/api/dashboard/get_last_update/`,{
-            params: {
-                cust_id: this.form.customer_id,
-                cust_branch: this.form.branch_id
-            }
-        })
-            .then(res => {
-                const data = res.data;
-                console.log(data)
-                this.last_update = data;
-            })
-            .catch(() => {
-            Swal.fire({
-                icon: 'error',
-                title: 'Fetch Failed',
-                text: 'Unable to get data.',
-                timer: 2000
-            });
-        });
-    },
-
-    get_monitoring_data() {
-        this.dashboards = [];
-        axios.get(`/get_dashboard`,{
-            params: {
-                cust_id: this.form.customer_id,
-                cust_branch: this.form.branch_id
-            }
-        })
-            .then(res => {
-                const data = res.data.data;
-                this.dashboards = data;
-            })
-            .catch(() => {
-            Swal.fire({
-                icon: 'error',
-                title: 'Fetch Failed',
-                text: 'Unable to get data.',
-                timer: 2000
-            });
-        });
-    },
-  },
-
-  setup(props) {
-    const dashboards = ref([]);
-    const table_data = ref([]);
-    const last_update = ref('');
-    const time = ref('');
-    const timeCount = ref(0);
-    const refreshRate = ref(0);
-    const isLoading = ref(false);
-    const form = reactive({
-        customer_id : '',
-        branch_id : ''
-    })
-
-    const interval = setInterval(() => {
-      checkTime();
-      time.value = new Date().toLocaleTimeString([], { hour12: false });
-    }, 1000);
-
-    onBeforeUnmount(() => clearInterval(interval));
-
-    const formatCompat = (dates) => {
-      if (!dates) return '-';
-      const d = new Date(dates);
-      return `${d.getDate().toString().padStart(2, '0')}-${d.toLocaleString('default', { month: 'short' })}-${d.getFullYear()}/${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
-    };
-
-    // const get_monitoring_data = () => {
-    //   isLoading.value = true;
-    //   timeCount.value = 0;
-
-    //   axios.get(`/api/dashboard/get_data/${props.auth.user.email}`)
-    //     .then(res => {
-    //       table_data.value = res.data.data;
-    //       last_update.value = res.data.data.last_update;
-    //       isLoading.value = false;
-    //     })
-    //     .catch(() => {
-    //       isLoading.value = false;
-    //       Swal.fire({ icon: 'error', title: 'Fetch Failed', text: 'Unable to get data.', timer: 2000 });
-    //     });
-    // };
-
-    const checkTime = () => {
-      if (refreshRate.value > 0) {
-        if (Math.floor(Date.now() / 1000) % 60 === 0) timeCount.value++;
-        if (timeCount.value === refreshRate.value) get_monitoring_data();
-      }
-    };
-
-    return {
-      table_data,
-      last_update,
-      time,
-      isLoading,
-      formatCompat,
-      form,
-      dashboards,
-    };
-  },
 };
 </script>
 
