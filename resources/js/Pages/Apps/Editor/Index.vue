@@ -472,6 +472,6 @@ export default {
 <style scoped>
 .sticky-top {
     top: 0;
-    z-index: 1050;
+    z-index: 2;
 }
 </style>

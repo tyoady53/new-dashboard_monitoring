@@ -31598,7 +31598,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.sticky-top[data-v-d02bbd58] {\n    top: 0;\n    z-index: 1050;\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.sticky-top[data-v-d02bbd58] {\n    top: 0;\n    z-index: 2;\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
